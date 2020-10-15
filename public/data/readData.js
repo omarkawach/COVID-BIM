@@ -20,7 +20,7 @@ d3.csv("/data/sandpiles.csv", function(data) {
 			window.data[idx] = [];
         }
         
-		window.data[idx].push({ x:+data[i].x, y:+data[i].y, state:+data[i].current_state });
+		window.data[idx].push({ x:+data[i].x, y:+data[i].y, state:+data[i].current_state, type:+data[i].type });
 
 	}
 
