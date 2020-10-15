@@ -39,8 +39,8 @@ class ParticlesExtension extends Autodesk.Viewing.Extension {
 
         var material = new THREE.ShaderMaterial( {
             uniforms: {
-                size: { type: 'f', value:80},
-                sprite: { type: 't', value: THREE.ImageUtils.loadTexture("../data/smoke.png") },
+                size: { type: 'f', value: 60},
+                sprite: { type: 't', value: THREE.ImageUtils.loadTexture("../data/white.png") },
             },
             vertexShader: vShader,
             fragmentShader: fShader,
@@ -55,72 +55,47 @@ class ParticlesExtension extends Autodesk.Viewing.Extension {
             size: 10,
         })
         
-        //let geometry = new THREE.BoxGeometry();
-        let numPoints = max_x * max_y;
-        let positions = new Float32Array(3);
-        let col = new Float32Array(6 * 3);
-        let color = new THREE.Color();
-
         var group = new THREE.Group()
+        let geometryBox = new THREE.BoxGeometry(1,1,1);
 
-        for (var i = 0; i < data[0].length; i++){
-            var messages = data[0];
+        // There should be a human at zero. Not 15
+        // Add humans to seperate group later
+        for (var i = 0; i < data[15].length; i++){
+            var messages = data[15];
             var m = messages[i]
-            let geometry = new THREE.BufferGeometry();
-                
+            let geometryBuf = new THREE.BufferGeometry();
+            
+            let particles;
 
-                // let k = m.x //* max_y + m.y;
-                // let u = m.y // max_x ;//- 0.52;
-                // let v = 0 //m.y / max_y ;//- 0.52;
-
-                // positions[0] = u;
-                // positions[1] = v;
-                // positions[2] = -1.5;
-
-                // color.setRGB(0/255, 0/255, 255/255);
-                // color.toArray(col, 3);
-                // console.log(color)
-
-                 // create line end points and add to geometry
+            // Create human
+            if(m.type == -200){
+                // create line end points and add to geometry
                 const vertices = new Float32Array([
                     1, 1, 1,
                 ]);
-                geometry.addAttribute('position', new THREE.BufferAttribute(vertices,3));
+                geometryBuf.addAttribute('position', new THREE.BufferAttribute(vertices,3));
                 // create colors of each end point (vertex) and add to geometry
-                const colors = new Float32Array([
-                1.0, 0.0, 0.0,  
+                const colors = new Float32Array([1.0, 0.0, 0.0]);
+                geometryBuf.addAttribute('color', new THREE.BufferAttribute(colors, 3));
+                geometryBuf.computeBoundingBox();
+                geometryBuf.isPoints = true;
+                particles = new THREE.PointCloud(geometryBuf, material)
 
-                ]);
+            }else{
+                particles = new THREE.PointCloud(geometryBox, matTwo)
+            }
+            particles.matrixAutoUpdate = false;
+            var particle_matrix = new THREE.Matrix4().makeTranslation(m.x , m.y, this.zaxisOffset);
+            
+            particles.applyMatrix(particle_matrix);
+            particles.matrixAutoUpdate = true;
+            // or use object.updateMatrix()
 
-                //geometry.addAttribute('position', new THREE.BufferAttribute(vertices, 3));
-                //geometry.addAttribute('position', new THREE.BufferAttribute(positions, 3));
-                geometry.addAttribute('color', new THREE.BufferAttribute(colors, 3));
-                geometry.computeBoundingBox();
-                geometry.isPoints = true;
-
-                var particles = new THREE.PointCloud(geometry, material)
-                particles.matrixAutoUpdate = false;
-                var particle_matrix = new THREE.Matrix4().makeTranslation(m.x , m.y, this.zaxisOffset);
-                // Add particles (X.PointCloud)to group
-                particles.applyMatrix(particle_matrix);
-                particles.matrixAutoUpdate = true;
-                // or use object.updateMatrix()
-                group.add(particles)
-                 
+            // Add particles (X.PointCloud)to group
+            group.add(particles)
+     
         }        
-
-        //var geometry = new THREE.IcosahedronGeometry(1, 1, 1);
-        // var geometry = new THREE.BoxGeometry(1, 1, 1);
-        // var matTwo = new THREE.PointCloudMaterial({
-        //     //map: new THREE.TextureLoader().load( '../data/toppng.com-particles-3000x2000.png' ),
-        //     color: 0xffff00,
-        //     transparent: false,
-        //     opacity: 0.9,
-        //     size: 10,
-        // })
         
-        
-
 
         // Add a geometry to each portion of the grid
 
@@ -220,45 +195,43 @@ class ParticlesExtension extends Autodesk.Viewing.Extension {
         var axis = new THREE.Vector3( 1, 1, 0 ).normalize();
         var degrees = Math.PI * 0.01
         for (let index = 0; index < group_of_particles.children.length; index++) {
-            // Rotate particles
+            // So we can make edits
             group_of_particles.children[index].matrixAutoUpdate = true;
-            //group_of_particles.children[index].position.x += 0.0005
 
             let maxX = 0.05
             let minX = - 0.05
-            
-            group_of_particles.children[index].position.x += Math.random() * ((maxX) - (minX)) + (minX);
-            group_of_particles.children[0].material.uniforms.size.value = Math.random() * ((80) - (50)) + (50);
-            group_of_particles.children[index].rotation.x += 0.05
-            group_of_particles.children[index].rotation.z -= 0.05
-            group_of_particles.children[index].rotateOnAxis(axis, degrees )
 
+            let typeOfGeometry = group_of_particles.children[index].geometry.type;
+            if(typeOfGeometry == "BoxGeometry"){
+                // Rotate particles
+                // group_of_particles.children[index].position.x += Math.random() * ((maxX) - (minX)) + (minX);
+                group_of_particles.children[index].rotation.x += 0.05
+                group_of_particles.children[index].rotation.z -= 0.05
+                group_of_particles.children[index].rotateOnAxis(axis, degrees )
+                // Change color of particles
+                group_of_particles.children[index].material = group_of_particles.children[index].material.clone();
+                if(messages[index].state < 3){ group_of_particles.children[index].material.color.setHex( 0xFFFFFF) }
+                else if(messages[index].state < 10){ group_of_particles.children[index].material.color.setHex( 0x808080) }
+                else{ group_of_particles.children[index].material.color.setHex( 0xFF0000) }
+            }else{
+                // Change size of particles
+                //group_of_particles.children[index].material.uniforms.size.value = Math.random() * ((50) - (40)) + (40);
+                
+                // Change color of particle
+                if(messages[index].state < 10){
+                    // Works for yellow [1,1,0], white [1,1,1] and red [1,0,0]
+                    group_of_particles.children[index].geometry.attributes.color.array = new Float32Array([1,1,1])
+                }
+                else {
+                    group_of_particles.children[index].geometry.attributes.color.array = new Float32Array([1,0,0])
+                }
+                group_of_particles.children[index].geometry.attributes.color.needsUpdate = true
+            }
+            
             //group_of_particles.children[0].geometry.attributes.position.array[0] += 0.5
             //group_of_particles.children[0].geometry.attributes.position.needsUpdate = true
-
-            // Change color of the particles
-            
-            //group_of_particles.children[index].material = group_of_particles.children[index].material.clone();
-        
-            if(messages[index].state < 3){
-                group_of_particles.children[index].geometry.attributes.color.array = new Float32Array([1,1,1])
-            }
-            else if (messages[index].state < 10) {
-                group_of_particles.children[index].geometry.attributes.color.array = new Float32Array([0,1,1])
-            }
-            else {
-                group_of_particles.children[index].geometry.attributes.color.array = new Float32Array([1,0,0])
-            }
-            group_of_particles.children[index].geometry.attributes.color.needsUpdate = true
-            
             // or use object.updateMatrix()
-            //debugger;
-            // if(messages[index].state < 3){ group_of_particles.children[index].material.color.setHex( 0xFFFFFF) }
-            // else if(messages[index].state < 10){ group_of_particles.children[index].material.color.setHex( 0x808080) }
-            // else{ group_of_particles.children[index].material.color.setHex( 0xFF0000) }
-            
-            
-            
+
           }
         this.viewer.impl.invalidate(true,false,true);
     }
@@ -274,10 +247,9 @@ class ParticlesExtension extends Autodesk.Viewing.Extension {
         // Add a new button to the toolbar group
         this._button = new Autodesk.Viewing.UI.Button('ParticlesExtensionButton');
         this._button.onClick = (ev) => {
-            /////////////////////////
-            // Execute an action here
-            /////////////////////////
-            // Rotate
+            ////////////////////////////
+            // Execute an action here //
+            ///////////////////////////
             var i = 0;
             var interval = setInterval(() => {
                 this._updatePointCloudGeometry(data[i]);
