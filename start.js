@@ -3,7 +3,7 @@ const express = require('express');
 
 const PORT = process.env.PORT || 3000;
 const config = require('./config');
-if (config.credentials.client_id == null || config.credentials.client_secret == null || config.credentials.model_url == null) {
+if (config.credentials.client_id == null || config.credentials.client_secret == null) {
     console.error('Missing FORGE_CLIENT_ID or FORGE_CLIENT_SECRET env. variables.');
     return;
 }
@@ -18,5 +18,4 @@ app.use((err, req, res, next) => {
     console.error(err);
     res.status(err.statusCode).json(err);
 });
-//app.listen(PORT, () => { console.log(`Server listening on port ${PORT}`); });
-app.listen(PORT || 3000, function() { console.log(`HTTP server listening on port ${PORT}`); });
+app.listen(PORT, () => { console.log(`Server listening on port ${PORT}`); });
