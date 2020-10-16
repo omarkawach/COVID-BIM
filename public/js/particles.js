@@ -1,5 +1,7 @@
 // Author(s): Omar Kawach, Mitali Patel
 
+// Make this file for small rooms since its group of groups
+
 /////////////////////////////////////////
 // This file is for creating groups ////
 // composed of various geometries & ///
@@ -22,6 +24,13 @@
 // Will hold a group of Point Clouds
 // Notice that this is different than _group
 let group;
+let colorScale = d3.scaleLinear()
+                 .domain([0, 20])
+                 .range(['#FFE5E5 ','#FC0101']);
+
+let opac  = d3.scaleLinear()
+                .domain([0,20])
+                .range([0,1]);
 
 class ParticlesExtension extends Autodesk.Viewing.Extension {
     
@@ -49,6 +58,9 @@ class ParticlesExtension extends Autodesk.Viewing.Extension {
     }
 
     _renderCloud(){
+
+
+
         group = this._generatePointCloud();
         // if (!viewer.overlays.hasScene('custom-scene')) {
         //     viewer.overlays.addScene('custom-scene');
@@ -56,6 +68,8 @@ class ParticlesExtension extends Autodesk.Viewing.Extension {
         //this.viewer.overlays.addMesh(group, 'custom-scene');
         this.viewer.impl.createOverlayScene( 'custom-scene' );
         this.viewer.impl.addOverlay( 'custom-scene', group );
+        // this.viewer.impl.sceneAfter.skipDepthTarget = true;
+        // this.viewer.impl.sceneAfter.skipIdTarget = true;
     }
 
     
@@ -80,7 +94,7 @@ class ParticlesExtension extends Autodesk.Viewing.Extension {
         var materialForBuffers = new THREE.ShaderMaterial( {
             uniforms: {
                 size: { type: 'f', value: this.pointSize},
-                sprite: { type: 't', value: THREE.ImageUtils.loadTexture("../data/white.png") },
+                sprite: { type: 't', value: THREE.ImageUtils.loadTexture("../img/human.png") },
             },
             vertexShader: vShader,
             fragmentShader: fShader,
@@ -97,14 +111,19 @@ class ParticlesExtension extends Autodesk.Viewing.Extension {
             color: 0xffff00,
             transparent: false,
             opacity: 0.9,
-            size: 10,
+            size: 8,
         })
-        
+
+
         // Group to hold various geometries
         // https://threejs.org/docs/index.html#api/en/objects/Group
         var groupGeometries = new THREE.Group();
 
         // https://threejs.org/docs/index.html#api/en/geometries/BoxGeometry
+        // Create (any) shape 
+        // @param1: Width
+        // @param2: Depth (probably keep it at 0.5)
+        // @param3: Height
         let geometryForShapes = new THREE.BoxGeometry( 1, 1, 1 );
 
         // TODO: Figure out how to add humans without hardcoding by time
@@ -129,6 +148,7 @@ class ParticlesExtension extends Autodesk.Viewing.Extension {
             if ( m.type == -200 ) 
             {
                 geometryForBuffers = new THREE.BufferGeometry();
+                
                 // create end points and add to geometry
                 const vertices = new Float32Array( [ 1, 1, 1 ] );
                 geometryForBuffers.addAttribute('position', new THREE.BufferAttribute( vertices, 3 ));
@@ -145,27 +165,45 @@ class ParticlesExtension extends Autodesk.Viewing.Extension {
                 // Create X.PointCloud with BufferGeometry
                 particles = new THREE.PointCloud( geometryForBuffers, materialForBuffers )
 
+                ////////////////////////////////////////
+                // Should double check how this works //
+                ////////////////////////////////////////
+                // Left (-ve) / Right (+ve) is first argument
+                // Down (-ve) / Up (+ve) is last argument
+                var particle_matrix = new THREE.Matrix4().makeTranslation( m.x , m.y, this.zaxisOffset );
+                particles.applyMatrix( particle_matrix );
+
+                // Set to false since we're keeping this static for now
+                // ** By default the matrixAutoUpdate is set to true **
+                particles.matrixAutoUpdate = false;
+                particles.updateMatrix()
+
+                // Add particles (X.PointCloud) to group
+                groupGeometries.add( particles )
             }
             else
             {
-                // Create X.PointCloud with some sort of shape Geometry
-                particles = new THREE.PointCloud( geometryForShapes, materialForShapes )
+                let groupShere = new THREE.Group()
+                 for ( var j = 0; j < 5; j++ ) {
+                     // Create X.PointCloud with some sort of shape Geometry
+                     let particles = new THREE.PointCloud( geometryForShapes, materialForShapes )
+     
+                     let randomX = Math.random() * ((m.x + 0.5) - (m.x - 0.5)) + (m.x - 0.5);
+                     let randomY = Math.random() * ((m.y + 0.5) - (m.y - 0.5)) + (m.y - 0.5);
+                     let randomZ = Math.random() * ((this.zaxisOffset + 0.5) - (this.zaxisOffset - 0.5)) + (this.zaxisOffset - 0.5);
+     
+                     var particle_matrix = new THREE.Matrix4().makeTranslation(  randomX, randomY, randomZ );
+                     particles.applyMatrix( particle_matrix );
+     
+                     // Add particles (X.PointCloud) to group
+                     groupShere.add( particles )
+                     
+                 }
+                 groupGeometries.add( groupShere )
+                
+                
             }
-            ////////////////////////////////////////
-            // Should double check how this works //
-            ////////////////////////////////////////
-            // Left (-ve) / Right (+ve) is first argument
-            // Down (-ve) / Up (+ve) is last argument
-            var particle_matrix = new THREE.Matrix4().makeTranslation( m.x , m.y, this.zaxisOffset );
-            particles.applyMatrix( particle_matrix );
 
-            // Set to false since we're keeping this static for now
-            // ** By default the matrixAutoUpdate is set to true **
-            particles.matrixAutoUpdate = false;
-            particles.updateMatrix()
-
-            // Add particles (X.PointCloud) to group
-            groupGeometries.add( particles )
         }
         return groupGeometries;
     }
@@ -185,17 +223,19 @@ class ParticlesExtension extends Autodesk.Viewing.Extension {
     _updatePointCloudGeometry(messages){
         // For "animations"
         var axis = new THREE.Vector3( 1, 1, 0 ).normalize(),
-            degrees = Math.PI * 0.01;
+            degrees = Math.random() * ((Math.PI * 0.1) - (Math.PI * 0.05)) + (Math.PI * 0.05)
+
         
         for ( let index = 0; index < group.children.length; index++ ) {
+
             // For making edits (scale, position, rotation)
             // The object will no longer be static, so it will stay true
             group.children[index].matrixAutoUpdate = true;
 
-            let typeOfGeometry = group.children[index].geometry.type;
+            let typeOfGeometry = group.children[index].type;
 
             // Shape geometries and Buffer geometries use different approaches for coloring
-            if ( typeOfGeometry == "BufferGeometry" ) 
+            if ( typeOfGeometry == "PointCloud" ) 
             {
                  // Change size of particles
                 //group_of_particles.children[index].material.uniforms.size.value = Math.random() * ((50) - (40)) + (40);
@@ -205,28 +245,37 @@ class ParticlesExtension extends Autodesk.Viewing.Extension {
                 //group_of_particles.children[0].geometry.attributes.position.needsUpdate = true
                 
                 // Change color of particle
-                if( messages[index].state < 10 )
-                {
-                    // Works for yellow [1,1,0], white [1,1,1] and red [1,0,0]
-                    group.children[index].geometry.attributes.color.array = new Float32Array( [ 1, 1, 1 ] )
-                }
-                else { group.children[index].geometry.attributes.color.array = new Float32Array( [ 1, 0, 0 ] ) }
+                // if( messages[index].state < 10 )
+                // {
+                //     // Works for yellow [1,1,0], white [1,1,1] and red [1,0,0]
+                //     group.children[index].geometry.attributes.color.array = new Float32Array( [ 1, 1, 1 ] )
+                // }
+                // else { group.children[index].geometry.attributes.color.array = new Float32Array( [ 1, 0, 0 ] ) }
                 
-                group.children[index].geometry.attributes.color.needsUpdate = true
+                // group.children[index].geometry.attributes.color.needsUpdate = true
             }
             else
             {   
+                for ( var j = 0; j < group.children[index].children.length; j++ ) {
                 // Rotate particles
                 // group_of_particles.children[index].position.x += Math.random() * ((maxX) - (minX)) + (minX);
-                group.children[index].rotation.x += 0.05
-                group.children[index].rotation.z -= 0.05
-                group.children[index].rotateOnAxis( axis, degrees )
+                group.children[index].children[j].rotation.x += 0.05
+                group.children[index].children[j].rotation.z -= 0.05
+                group.children[index].children[j].rotateOnAxis( axis, degrees )
 
                 // Change color of particles
-                group.children[index].material = group.children[index].material.clone();
-                if ( messages[index].state < 3 ) { group.children[index].material.color.setHex( 0xFFFFFF ) }
-                else if( messages[index].state < 10 ){ group.children[index].material.color.setHex( 0x808080 ) }
-                else{ group.children[index].material.color.setHex( 0xFF0000 ) }
+                group.children[index].children[j].material = group.children[index].children[j].material.clone();
+                // Some RGB colors:
+                // setRGB(255,0,0)
+                let rgbColor = colorScale(messages[index].state)
+                let recolor = new THREE.Color(rgbColor)
+                group.children[index].children[j].material.color = recolor
+
+                let opacColor = opac(messages[index].state)
+                group.children[index].children[j].material.opacity = opacColor
+                    
+                }
+
             } 
           }
         // Show the changes
@@ -251,7 +300,7 @@ class ParticlesExtension extends Autodesk.Viewing.Extension {
             var interval = setInterval(() => {
                 this._updatePointCloudGeometry(data[i]);
                 if (++i == data.length) window.clearInterval(interval);
-            }, 0.5);
+            }, 0.05);
             
         };
         this._button.setToolTip('My Particles Extension');
