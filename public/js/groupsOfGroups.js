@@ -1,10 +1,10 @@
 // Author(s): Omar Kawach, Mitali Patel
 
+//////////////////////////////////////////////
+// This file is for creating groups of //////
+// groups composed of various geometries ///
+// & displaying them in Forge Viewer //////
 //////////////////////////////////////////
-// This file is for creating groups /////
-// composed of various geometries //////
-// & displaying them in Forge Viewer //
-//////////////////////////////////////
 
 /* Problems:
     - Outdated version of Three.js
@@ -56,6 +56,9 @@ class ParticlesExtension extends Autodesk.Viewing.Extension {
     }
 
     _renderCloud(){
+
+
+
         group = this._generatePointCloud();
         // if (!viewer.overlays.hasScene('custom-scene')) {
         //     viewer.overlays.addScene('custom-scene');
@@ -160,28 +163,44 @@ class ParticlesExtension extends Autodesk.Viewing.Extension {
                 // Create X.PointCloud with BufferGeometry
                 particles = new THREE.PointCloud( geometryForBuffers, materialForBuffers )
 
+                ////////////////////////////////////////
+                // Should double check how this works //
+                ////////////////////////////////////////
+                // Left (-ve) / Right (+ve) is first argument
+                // Down (-ve) / Up (+ve) is last argument
+                var particle_matrix = new THREE.Matrix4().makeTranslation( m.x , m.y, this.zaxisOffset );
+                particles.applyMatrix( particle_matrix );
+
+                // Set to false since we're keeping this static for now
+                // ** By default the matrixAutoUpdate is set to true **
+                particles.matrixAutoUpdate = false;
+                particles.updateMatrix()
+
+                // Add particles (X.PointCloud) to group
+                groupGeometries.add( particles )
             }
             else
             {
-                // Create X.PointCloud with some sort of shape Geometry
-                particles = new THREE.PointCloud( geometryForShapes, materialForShapes )
+                let groupShere = new THREE.Group()
+                 for ( var j = 0; j < 1; j++ ) {
+                     // Create X.PointCloud with some sort of shape Geometry
+                     let particles = new THREE.PointCloud( geometryForShapes, materialForShapes )
+     
+                     let randomX = Math.random() * ((m.x + 0.5) - (m.x - 0.5)) + (m.x - 0.5);
+                     let randomY = Math.random() * ((m.y + 0.5) - (m.y - 0.5)) + (m.y - 0.5);
+                     let randomZ = Math.random() * ((this.zaxisOffset + 0.5) - (this.zaxisOffset - 0.5)) + (this.zaxisOffset - 0.5);
+     
+                     var particle_matrix = new THREE.Matrix4().makeTranslation(  randomX, randomY, randomZ );
+                     particles.applyMatrix( particle_matrix );
+     
+                     // Add particles (X.PointCloud) to group
+                     groupShere.add( particles )
+                     
+                 }
+                 groupGeometries.add( groupShere )
+                
+                
             }
-            
-            ////////////////////////////////////////
-            // Should double check how this works //
-            ////////////////////////////////////////
-            // Left (-ve) / Right (+ve) is first argument
-            // Down (-ve) / Up (+ve) is last argument
-            var particle_matrix = new THREE.Matrix4().makeTranslation( m.x , m.y, this.zaxisOffset );
-            particles.applyMatrix( particle_matrix );
-
-            // Set to false since we're keeping this static for now
-            // ** By default the matrixAutoUpdate is set to true **
-            particles.matrixAutoUpdate = false;
-            particles.updateMatrix()
-
-            // Add particles (X.PointCloud) to group
-            groupGeometries.add( particles )
 
         }
         return groupGeometries;
@@ -211,10 +230,10 @@ class ParticlesExtension extends Autodesk.Viewing.Extension {
             // The object will no longer be static, so it will stay true
             group.children[index].matrixAutoUpdate = true;
 
-            let typeOfGeometry = group.children[index].geometry.type;
+            let typeOfGeometry = group.children[index].type;
 
             // Shape geometries and Buffer geometries use different approaches for coloring
-            if ( typeOfGeometry == "BufferGeometry" ) 
+            if ( typeOfGeometry == "PointCloud" ) 
             {
                  // Change size of particles
                 //group_of_particles.children[index].material.uniforms.size.value = Math.random() * ((50) - (40)) + (40);
@@ -235,22 +254,26 @@ class ParticlesExtension extends Autodesk.Viewing.Extension {
             }
             else
             {   
+                for ( var j = 0; j < group.children[index].children.length; j++ ) {
                 // Rotate particles
                 // group_of_particles.children[index].position.x += Math.random() * ((maxX) - (minX)) + (minX);
-                group.children[index].rotation.x += 0.05
-                group.children[index].rotation.z -= 0.05
-                group.children[index].rotateOnAxis( axis, degrees )
+                group.children[index].children[j].rotation.x += 0.05
+                group.children[index].children[j].rotation.z -= 0.05
+                group.children[index].children[j].rotateOnAxis( axis, degrees )
 
                 // Change color of particles
-                group.children[index].material = group.children[index].material.clone();
+                group.children[index].children[j].material = group.children[index].children[j].material.clone();
                 // Some RGB colors:
                 // setRGB(255,0,0)
                 let rgbColor = colorScale(messages[index].state)
                 let recolor = new THREE.Color(rgbColor)
-                group.children[index].material.color = recolor
+                group.children[index].children[j].material.color = recolor
 
                 let opacColor = opac(messages[index].state)
-                group.children[index].material.opacity = opacColor
+                group.children[index].children[j].material.opacity = opacColor
+                    
+                }
+
             } 
           }
         // Show the changes
