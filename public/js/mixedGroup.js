@@ -102,7 +102,7 @@ class MixedGroupExtension extends Autodesk.Viewing.Extension {
     this.humanMaterial = new THREE.ShaderMaterial({
       uniforms: {
         size: { type: "f", value: 70 },
-        sprite: { type: "t", value: THREE.ImageUtils.loadTexture("../img/sil_10-01.png"),
+        sprite: { type: "t", value: THREE.ImageUtils.loadTexture("../img/humanBlur.png"),
         },
       },
       vertexShader: this.vShader,
