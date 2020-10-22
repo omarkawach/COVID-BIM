@@ -7,7 +7,7 @@ function launchViewer(urn) {
   };
 
   Autodesk.Viewing.Initializer(options, () => {
-    viewer = new Autodesk.Viewing.GuiViewer3D(document.getElementById('forgeViewer'), { extensions: ['ParticlesExtension'] });
+    viewer = new Autodesk.Viewing.GuiViewer3D(document.getElementById('forgeViewer'), { extensions: ['MixedGroupExtension', 'ParticlesExtension'] });
 
     viewer.start();
     var documentId = 'urn:' + urn;
