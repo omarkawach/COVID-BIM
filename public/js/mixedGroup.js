@@ -387,6 +387,8 @@ class MixedGroupExtension extends Autodesk.Viewing.Extension {
     // Add the button for 'PointClouds ON/OFF'
     this._button = new Autodesk.Viewing.UI.Button("PointClouds ON/OFF");
     this._button.onClick = (ev) => {
+
+      // Hide or show pointclouds
       if (this.showGroup) {
         group.visible = false;
         this.showGroup = false;
@@ -405,6 +407,8 @@ class MixedGroupExtension extends Autodesk.Viewing.Extension {
     this._button = new Autodesk.Viewing.UI.Button("Legend ON/OFF");
     this._button.onClick = (ev) => {
     
+      // Hide or show legend
+      // Also check which legend to show
       if (window.legendOFF) {
         window.legendOFF = false;
         if (!this.swapLegend) {
@@ -431,6 +435,7 @@ class MixedGroupExtension extends Autodesk.Viewing.Extension {
     this._button = new Autodesk.Viewing.UI.Button("Run Simulation");
     this._button.onClick = (ev) => {
 
+      // Hide or show legend and decided which to show
       if (window.legendOFF) {
         window.legendOFF = false;
         if (!this.swapLegend) {
@@ -442,6 +447,7 @@ class MixedGroupExtension extends Autodesk.Viewing.Extension {
         }
       }
 
+      // Show point clouds if they're hidden
       if (!this.showGroup) {
         group.visible = true;
       }
@@ -540,19 +546,34 @@ class MixedGroupExtension extends Autodesk.Viewing.Extension {
     // append a defs (for definition) element to your SVG
     var svgLegend = d3.select("#legend").append("svg");
 
-    // Use a function instead later
-    // https://www.d3-graph-gallery.com/graph/custom_legend.html
-
-    // Handmade legend
-    //Title
+    // Title
     svgLegend
-      .append("text")
-      .attr("x", 0)
-      .attr("y", 10)
-      .text("Condition")
-      .style("font-size", "15px")
-      .attr("alignment-baseline", "middle");
-    // Items
+    .append("text")
+    .attr("x", 0)
+    .attr("y", 10)
+    .text("Condition")
+    .style("font-size", "15px")
+    .attr("alignment-baseline", "middle");
+
+    var keys = [
+        "Uninfected",
+        "Almost Infected",
+        "infected",
+        "Carrier"
+    ]
+
+    // Add one dot in the legend for each name.
+    svgLegend.selectAll("labels")
+    .data(keys)
+    .enter()
+    .append("text")
+        .attr("x", 20)
+        .attr("y", function(d,i){ return 30 + i*20}) 
+        .text(function(d){ return d})
+        .attr("text-anchor", "left")
+        .style("alignment-baseline", "middle")
+    
+    // Circles
     svgLegend
       .append("circle")
       .attr("cx", 6)
@@ -577,38 +598,7 @@ class MixedGroupExtension extends Autodesk.Viewing.Extension {
       .attr("cy", 88)
       .attr("r", 6)
       .style("fill", "#FF0000");
-    svgLegend
-      .append("text")
-      .attr("x", 20)
-      .attr("y", 30)
-      .text("Uninfected")
-      .style("font-size", "15px")
-      .attr("alignment-baseline", "middle");
-    svgLegend
-      .append("text")
-      .attr("x", 20)
-      .attr("y", 50)
-      .text("Almost Infected")
-      .style("font-size", "15px")
-      .attr("alignment-baseline", "middle");
-    svgLegend
-      .append("text")
-      .attr("x", 20)
-      .attr("y", 70)
-      .text("Infected")
-      .style("font-size", "15px")
-      .attr("alignment-baseline", "middle");
-    svgLegend
-      .append("text")
-      .attr("x", 20)
-      .attr("y", 90)
-      .text("Carrier")
-      .style("font-size", "15px")
-      .attr("alignment-baseline", "middle");
   }
 }
 
-Autodesk.Viewing.theExtensionManager.registerExtension(
-  "MixedGroupExtension",
-  MixedGroupExtension
-);
+Autodesk.Viewing.theExtensionManager.registerExtension("MixedGroupExtension", MixedGroupExtension);
