@@ -1,13 +1,17 @@
-let geometry;
+//let geometry;
 let group_of_particles;
 
 let colorScale = d3.scaleLinear()
                 // Based on min state and max state
-                 .domain( [ 200,500,700] )
+                 .domain( [ 0,310,330,350,370,390,410,430,450,470,490,510,530,550,570,590,610,630,650,670,690 ] )
                  .range( [ 
-                     '#F6BDC0',
-                     '#4287f5',
-                     '#DC1C13' 
+                     '#FFFFFF',
+                     '#0000FF',
+                     '#1A1AFF',
+                     '#4055EA',
+                     '#3333FF',
+                     '#4D4DFF','#6666FF','#8080FF','#9999FF',
+                     '#B3B3FF','#CCCCFF','#E6E6FF',	'#FFFFFF','#FFE6E6','#FFCCCC','#FFB3B3','#FF9999','#FF8080','#FF6666','#FF4D4D','#FF3333','#FF1A1A','#FF0000' 
                     ] );
 
 class ParticlesExtension extends Autodesk.Viewing.Extension {
@@ -33,8 +37,7 @@ class ParticlesExtension extends Autodesk.Viewing.Extension {
         //var geometry = new THREE.IcosahedronGeometry(1, 1, 1);
         var geometry = new THREE.BoxGeometry(1, 1, 1);
         var matTwo = new THREE.PointCloudMaterial({
-            //map: new THREE.TextureLoader().load( '../data/toppng.com-particles-3000x2000.png' ),
-            color: 0xffff00,
+            color: 0xffffff,
             transparent: false,
             opacity: 0.9,
             size: 10,
