@@ -3,15 +3,24 @@ let group_of_particles;
 
 let colorScale = d3.scaleLinear()
                 // Based on min state and max state
-                 .domain( [ 0,310,330,350,370,390,410,430,450,470,490,510,530,550,570,590,610,630,650,670,690 ] )
+                 .domain( [ 0,310,330,390,430,470,490,510,530,550,590,610,630,650,670,690 ] )
                  .range( [ 
-                     '#FFFFFF',
-                     '#0000FF',
-                     '#1A1AFF',
-                     '#4055EA',
-                     '#3333FF',
-                     '#4D4DFF','#6666FF','#8080FF','#9999FF',
-                     '#B3B3FF','#CCCCFF','#E6E6FF',	'#FFFFFF','#FFE6E6','#FFCCCC','#FFB3B3','#FF9999','#FF8080','#FF6666','#FF4D4D','#FF3333','#FF1A1A','#FF0000' 
+                     '#ffffff',
+                     'rgb(26, 26, 255)',
+                     'rgb(77, 77, 255)',
+                     'rgb(128, 128, 255)',
+                     'rgb(179, 179, 255)',
+                     'rgb(230, 230, 255)',
+                     'rgb(252,244,166)',
+                     'rgb(252,218,150)',
+                     'rgb(252,206,142)',
+                     'rgb(252,181,126)',
+                     'rgb(253,156,111)',
+                     'rgb(253,130,95)',
+                     'rgb(254,93,72)',
+                     'rgb(254,68,56)',
+                     'rgb(255,0,0)',
+                     'rgb(255,0,0)'
                     ] );
 
 class ParticlesExtension extends Autodesk.Viewing.Extension {
@@ -22,7 +31,9 @@ class ParticlesExtension extends Autodesk.Viewing.Extension {
         this._button = null;
         // First floor of house
         this.zaxisOffset = -6.5;
-        this.pointSize = 50;
+        this.pointSize = 40;
+        this.xaxisOffset = -49;
+        this.yzaxisOffset = -11;
     }
 
     load() {
@@ -62,8 +73,8 @@ class ParticlesExtension extends Autodesk.Viewing.Extension {
                 particles.matrixAutoUpdate = false;
 
                 let k = m.x * max_y + m.y;
-                let u = m.x / max_x - 0.52;
-                let v = m.y / max_y - 0.52;
+                let u = m.x / max_x ;
+                let v = m.y / max_y;
 
                 positions[3 * k] = u;
                 positions[3 * k + 1] = v;
@@ -72,7 +83,7 @@ class ParticlesExtension extends Autodesk.Viewing.Extension {
                  // in makeTranslation, only the first and last argument will be used for movement
                 // Left (-ve) / Right (+ve) is first argument
                 // Down (-ve) / Up (+ve) is last argument
-                var particle_matrix = new THREE.Matrix4().makeTranslation(m.x , m.y, this.zaxisOffset);
+                var particle_matrix = new THREE.Matrix4().makeTranslation(m.x + this.xaxisOffset, m.y + this.yzaxisOffset, this.zaxisOffset);
                 // let rotate = new THREE.Matrix4().makeRotationAxis(new THREE.Vector3(1, 0, 0), Math.PI / 2)
                 particles.applyMatrix(particle_matrix);
                 particles.matrixAutoUpdate = true;
@@ -168,7 +179,7 @@ class ParticlesExtension extends Autodesk.Viewing.Extension {
             
         };
         this._button.setToolTip('My Particles Extension');
-        this._button.addClass('pointcloudIcon');
+        this._button.addClass('playIcon');
         this._group.addControl(this._button);
     }
     
