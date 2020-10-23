@@ -42,7 +42,7 @@ class MixedGroupExtension extends Autodesk.Viewing.Extension {
     // Negative values move down (depending on perspective)
     this.xaxisOffset = -13.5;
     // Negative values move to the right (depending on perspective)
-    this.yaxisOffset = -28.5;
+    this.yaxisOffset = -29;
     // For human height
     this.zaxisOffset = -1;
     // For virus height
@@ -112,18 +112,17 @@ class MixedGroupExtension extends Autodesk.Viewing.Extension {
 
     // Human sprite colors
 
-    // White is susceptible (1,1,0), white is (1,1,1)
-    //this.whiteBufferColor.setHSL(0.5, 0.5, 1.0);
-    this.lightBufferColor = new THREE.Color();
-    this.lightBufferColor.setHSL(0.1, 1.0, 0.8);
+    // Dark red is susceptible
+    this.susBufferColor = new THREE.Color();
+    this.susBufferColor.setHSL(0.0, 0.7, 0.4);
 
     // Red is infected 
     this.redBufferColor = new THREE.Color();
     this.redBufferColor.setHSL(0, 1.0, 0.5);
 
-    // Almost red is infected
-    this.almostRedBufferColor = new THREE.Color();
-    this.almostRedBufferColor.setHSL(0.0, 0.7, 0.4);
+    // White is safe
+    this.whiteBufferColor = new THREE.Color();
+    this.whiteBufferColor.setHSL(0.1, 1.0, 0.8);
 
     // Virus particle colors
 
@@ -133,14 +132,14 @@ class MixedGroupExtension extends Autodesk.Viewing.Extension {
       // Based on min state and max state
       .domain([
         0,
-        max_particles * 0.2,
-        max_particles * 0.4,
-        max_particles * 0.6,
-        max_particles * 0.8,
+        max_particles * 0.25,
+        max_particles * 0.50,
+        max_particles * 0.75,
+        //max_particles * 0.8,
         max_particles,
       ])
       .range([
-        "#FFFFFF",
+        //"#FFFFFF",
         "#F6BDC0",
         "#F1959B",
         "#F07470",
@@ -180,18 +179,18 @@ class MixedGroupExtension extends Autodesk.Viewing.Extension {
             colors[2] = this.redBufferColor.b;
     }
     if (m.type == -800) {
-      // light color (uninfected)
-      //if (m.inhaled < max_inhaled / 3) {
-        colors[0] = this.lightBufferColor.r;
-            colors[1] = this.lightBufferColor.g;
-                colors[2] = this.lightBufferColor.b;
-      //}
-      // // almost red (infected)
-      // else {
-      //   colors[0] = this.almostRedBufferColor.r;
-      //       colors[1] = this.almostRedBufferColor.g;
-      //           colors[2] = this.almostRedBufferColor.b;
-      // }
+      // Sus
+      if (m.inhaled >= 1 ) {
+        colors[0] = this.susBufferColor.r;
+            colors[1] = this.susBufferColor.g;
+                colors[2] = this.susBufferColor.b;
+      }
+      // Not sus
+      else {
+        colors[0] = this.whiteBufferColor.r;
+            colors[1] = this.whiteBufferColor.g;
+                colors[2] = this.whiteBufferColor.b;
+      }
     }
 
     geometry.addAttribute("color", new THREE.BufferAttribute(colors, 3));
@@ -308,17 +307,17 @@ class MixedGroupExtension extends Autodesk.Viewing.Extension {
 
         var colors = new Float32Array(3);
 
-        // Light color
-        if (m.inhaled < max_inhaled / 2) { // switched from 3
-          colors[0] = this.lightBufferColor.r;
-            colors[1] = this.lightBufferColor.g;
-                colors[2] = this.lightBufferColor.b;
+        // Light color (uninfected)
+        if (m.inhaled >= 1) {
+          colors[0] = this.susBufferColor.r;
+            colors[1] = this.susBufferColor.g;
+                colors[2] = this.susBufferColor.b;
         }
-        // Infected
+        // Not infected
         else {
-          colors[0] = this.almostRedBufferColor.r;
-            colors[1] = this.almostRedBufferColor.g;
-                colors[2] = this.almostRedBufferColor.b;
+          colors[0] = this.whiteBufferColor.r;
+            colors[1] = this.whiteBufferColor.g;
+                colors[2] = this.whiteBufferColor.b;
         }
 
         group.children[index].geometry.attributes.color.array = colors;
@@ -450,7 +449,7 @@ class MixedGroupExtension extends Autodesk.Viewing.Extension {
       // Last time step is problematic so we do -1 
       i = 0;
       var interval = setInterval(() => {
-        if (this.resetAll) window.clearInterval(interval);
+        if (this.resetAll) {window.clearInterval(interval);}
         this._updatePointCloudGeometry(data[i]);
 
         // -1 since the data at the end sometimes gets cut off
@@ -490,11 +489,11 @@ class MixedGroupExtension extends Autodesk.Viewing.Extension {
     linearGradient
       .selectAll("stop")
       .data([
-        { offset: "0%", color: "#FFFFFF" },
-        { offset: "20%", color: "#F6BDC0" },
-        { offset: "40%", color: "#F1959B" },
-        { offset: "60%", color: "#F07470" },
-        { offset: "80%", color: "#EA4C46" },
+        //{ offset: "0%", color: "#FFFFFF" },
+        { offset: "0%", color: "#F6BDC0" },
+        { offset: "25%", color: "#F1959B" },
+        { offset: "50%", color: "#F07470" },
+        { offset: "75%", color: "#EA4C46" },
         { offset: "100%", color: "#DC1C13" },
       ])
       .enter()
@@ -510,22 +509,22 @@ class MixedGroupExtension extends Autodesk.Viewing.Extension {
     svgLegend
       .append("text")
       .attr("class", "legendTitle")
-      .attr("x", 0)
+      .attr("x", 5)
       .attr("y", 20)
       .style("text-anchor", "mid")
-      .text("Virus Particle Count");
+      .text("Viral Aerosol Conc.");
 
     // draw the rectangle and fill with gradient
     svgLegend
       .append("rect")
-      .attr("x", 0)
+      .attr("x", 5)
       .attr("y", 30)
-      .attr("width", 145)
+      .attr("width", 140)
       .attr("height", 15)
       .style("fill", "url(#linear-gradient)");
 
     //create tick marks
-    var xLeg = d3.scale.ordinal().domain([max_particles]).range([135]);
+    var xLeg = d3.scale.ordinal().domain([1, max_particles/2, max_particles]).range([0,135/2,135]);
 
     var axisLeg = d3.axisBottom(xLeg);
 
@@ -546,8 +545,8 @@ class MixedGroupExtension extends Autodesk.Viewing.Extension {
 
     var keys = [
         "Susceptible",
-        "Infected",
-        "Initial Infected"
+        "Exposed",
+        "Infected"
     ]
 
     // Add one dot in the legend for each name.
