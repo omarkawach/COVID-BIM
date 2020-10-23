@@ -6,30 +6,35 @@ Use your own Autodesk client credentials to run the app inside launch.json.
 
 The csv files are too large to upload on github, If you need to run this project please email Vinu Subashini Rajus at vinu.rajus@carleton.ca
 
-JS Files...
-1) boxGeometry.js
-2) mixedGroup.js
+## Getting Started
 
-READ DATA...
-1) data/boxGeometry_readData.js
-2) data/mixedGroup_readData.js
+#### Decide what you want to see 
 
-INDEX.HTML FILE...
-   NOTE: USE ONE JS AT A TIME(COMMENT THE OTHER in index.html)
+In the index.html, you will need to comment out the script you aren't interested in. 
 
-   TO RUN THE CO2 SIMULATION MODEL
+- boxGeometry.js
+  - For running C02 simulation model
+  - Requires data/boxGeometry_readData.js for reading CSV
+- mixedGroup.js
+  - For running virus particle spread model 
+  - Requires data/mixedGroup_readData.js for reading CSV
 
-    <script src="./data/boxGeometry_readData.js"></script>
-    <script src="./js/boxGeometry.js"></script> 
 
-   TO RUN THE VIRUS PARTICLE SPREADER MODEL
+## CO2 Simulation Model 
 
-    <script src="./data/mixedGroup_readData.js"></script>
-    <script src="./js/mixedGroup.js"></script> 
+```<script src="./data/boxGeometry_readData.js"></script>```
+```<script src="./js/boxGeometry.js"></script>```
 
-For the Cadmium simulator, please consult the following link: https://github.com/SimulationEverywhere/Cell-DEVS-Cadmium-Simulation-Environment
+## Virus Particle Spreader Model
 
-For the CO2 model, please consult the following link: https://github.com/SimulationEverywhere-Models/Cell-DEVS-CO2_spread_computer_lab
+```<script src="./data/mixedGroup_readData.js"></script>```
+```<script src="./js/mixedGroup.js"></script> ```
 
-For the Indoor Virus Spread model, please consult the following link: https://github.com/SimulationEverywhere-Models/indoor_virus_spread
+## Important Links
 
+[Cadmium simulator](https://github.com/SimulationEverywhere/Cell-DEVS-Cadmium-Simulation-Environment)
+
+[CO2 model](https://github.com/SimulationEverywhere-Models/Cell-DEVS-CO2_spread_computer_lab)
+
+[Indoor Virus Spread model](https://github.com/SimulationEverywhere-Models/indoor_virus_spread
+)
