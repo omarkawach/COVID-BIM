@@ -37,7 +37,6 @@ class MixedGroupExtension extends Autodesk.Viewing.Extension {
     // For toolbar 
     this.showGroup = false;
     this.resetAll = false;
-    this.swapLegend = false;
 
     // Restuarant Model offsets
     // Negative values move down (depending on perspective)
@@ -89,11 +88,11 @@ class MixedGroupExtension extends Autodesk.Viewing.Extension {
     // Material that is supposed to accept textures
     var virusPointMaterial = new THREE.PointCloudMaterial({
       color: 0xff0000,
-      size: 6,
+      size: 7,
       // TEXTURE STILL DOESN'T APPEAR
       //map: ""
     });
-    // new THREE.TextureLoader().load( '../img/epidemics.png', function onLoad(tex) {
+    // new THREE.TextureLoader().load( '../js/epidemics.png', function onLoad(tex) {
     //     virusPointMaterial.map = tex;
     //   });
     this.virusPointMaterial = virusPointMaterial;
@@ -101,33 +100,30 @@ class MixedGroupExtension extends Autodesk.Viewing.Extension {
     // Material rendered with custom shaders and sprites
     this.humanMaterial = new THREE.ShaderMaterial({
       uniforms: {
-        size: { type: "f", value: 70 },
+        size: { type: "f", value: 65 },
         sprite: { type: "t", value: THREE.ImageUtils.loadTexture("../img/humanBlur.png"),
         },
       },
       vertexShader: this.vShader,
       fragmentShader: this.fShader,
       transparent: true,
-      vertexColors: true,
+      vertexColors: true
     });
 
     // Human sprite colors
 
-    // White is unimpacted
-    this.whiteBufferColor = new THREE.Color();
-    this.whiteBufferColor.setHSL(1.0, 1.0, 1.0);
+    // White is susceptible (1,1,0), white is (1,1,1)
+    //this.whiteBufferColor.setHSL(0.5, 0.5, 1.0);
+    this.lightBufferColor = new THREE.Color();
+    this.lightBufferColor.setHSL(0.1, 1.0, 0.8);
 
-    // Red is infectious
+    // Red is infected 
     this.redBufferColor = new THREE.Color();
     this.redBufferColor.setHSL(0, 1.0, 0.5);
 
     // Almost red is infected
     this.almostRedBufferColor = new THREE.Color();
     this.almostRedBufferColor.setHSL(0.0, 0.7, 0.4);
-
-    // Orange nearing infection
-    this.orangeBufferColor = new THREE.Color();
-    this.orangeBufferColor.setHSL(0.1, 1.0, 0.4);
 
     // Virus particle colors
 
@@ -162,6 +158,8 @@ class MixedGroupExtension extends Autodesk.Viewing.Extension {
     group = this._generateGroupOfPointClouds(time);
     group.visible = this.showGroup === true ? true : false;
 
+    this.viewer.impl.scene.add(group)
+
     this.viewer.impl.createOverlayScene("custom-scene");
     this.viewer.impl.addOverlay("custom-scene", group);
   }
@@ -182,24 +180,18 @@ class MixedGroupExtension extends Autodesk.Viewing.Extension {
             colors[2] = this.redBufferColor.b;
     }
     if (m.type == -800) {
-      // white (uninfected)
-      if (m.inhaled < max_inhaled / 3) {
-        colors[0] = this.whiteBufferColor.r;
-            colors[1] = this.whiteBufferColor.g;
-                colors[2] = this.whiteBufferColor.b;
-      }
-      // orange (almost infected)
-      else if (m.inhaled < max_inhaled / 2) {
-        colors[0] = this.orangeBufferColor.r;
-            colors[1] = this.orangeBufferColor.g;
-                colors[2] = this.orangeBufferColor.b;
-      }
-      // almost red (infected)
-      else {
-        colors[0] = this.almostRedBufferColor.r;
-            colors[1] = this.almostRedBufferColor.g;
-                colors[2] = this.almostRedBufferColor.b;
-      }
+      // light color (uninfected)
+      //if (m.inhaled < max_inhaled / 3) {
+        colors[0] = this.lightBufferColor.r;
+            colors[1] = this.lightBufferColor.g;
+                colors[2] = this.lightBufferColor.b;
+      //}
+      // // almost red (infected)
+      // else {
+      //   colors[0] = this.almostRedBufferColor.r;
+      //       colors[1] = this.almostRedBufferColor.g;
+      //           colors[2] = this.almostRedBufferColor.b;
+      // }
     }
 
     geometry.addAttribute("color", new THREE.BufferAttribute(colors, 3));
@@ -232,9 +224,21 @@ class MixedGroupExtension extends Autodesk.Viewing.Extension {
   _geometryToPointCloud(m, material) {
     var geometry = new THREE.Geometry(1, 1, 1);
 
-    var vertex = new THREE.Vector3(0, 0, 0);
+    var vertex = new THREE.Vector3();
 
-    geometry.vertices.push(vertex);
+    let numVertices = m.state === 0 ? 1 : m.state;
+
+    for (let index = 0; index < numVertices; index++) {
+
+      vertex.x = Math.random() * ((0.5 + m.x / max_x) - (0.5 - m.x / max_x)) + (0.5 - m.x / max_x);
+      vertex.y = Math.random() * ((0.5 + m.y / max_y) - (0.5 - m.y / max_y)) + (0.5 - m.y / max_y);
+      vertex.z = Math.random() * ((1) - (0)) + (0);
+
+      geometry.vertices.push(vertex);
+      
+    }
+
+    
 
     var pointCloud = this._createPointCloud(geometry, material, this.zaxisOffsetVirus, m);
 
@@ -304,17 +308,11 @@ class MixedGroupExtension extends Autodesk.Viewing.Extension {
 
         var colors = new Float32Array(3);
 
-        // white
-        if (m.inhaled < max_inhaled / 3) {
-          colors[0] = this.whiteBufferColor.r;
-            colors[1] = this.whiteBufferColor.g;
-                colors[2] = this.whiteBufferColor.b;
-        }
-        // Almost Infected
-        else if (m.inhaled < max_inhaled / 2) {
-          colors[0] = this.orangeBufferColor.r;
-            colors[1] = this.orangeBufferColor.g;
-                colors[2] = this.orangeBufferColor.b;
+        // Light color
+        if (m.inhaled < max_inhaled / 2) { // switched from 3
+          colors[0] = this.lightBufferColor.r;
+            colors[1] = this.lightBufferColor.g;
+                colors[2] = this.lightBufferColor.b;
         }
         // Infected
         else {
@@ -325,6 +323,14 @@ class MixedGroupExtension extends Autodesk.Viewing.Extension {
 
         group.children[index].geometry.attributes.color.array = colors;
         group.children[index].geometry.attributes.color.needsUpdate = true;
+      }
+      else if ( m.state != m.previous_state && pointCloud.geometry.type == "Geometry" ) {
+        pointCloud = this._geometryToPointCloud(m, this.virusPointMaterial);
+
+        // Change visibility
+        pointCloud.material.visible = m.state == 0 ? false : true;
+
+        group.children[index] = pointCloud;
       }
       // Edit virus particle characteristics (animation and color)
       else if (pointCloud.geometry.type == "Geometry") {
@@ -411,13 +417,7 @@ class MixedGroupExtension extends Autodesk.Viewing.Extension {
       // Also check which legend to show
       if (window.legendOFF) {
         window.legendOFF = false;
-        if (!this.swapLegend) {
-          this._appearLegend();
-          this.swapLegend = true;
-        } else {
-          this._appearLegendTwo();
-          this.swapLegend = false;
-        }
+        this._appearLegend();
       } else {
         this._removeLegend();
         window.legendOFF = true;
@@ -438,13 +438,7 @@ class MixedGroupExtension extends Autodesk.Viewing.Extension {
       // Hide or show legend and decided which to show
       if (window.legendOFF) {
         window.legendOFF = false;
-        if (!this.swapLegend) {
-          this._appearLegend();
-          this.swapLegend = true;
-        } else {
-          this._appearLegendTwo();
-          this.swapLegend = false;
-        }
+        this._appearLegend();
       }
 
       // Show point clouds if they're hidden
@@ -526,12 +520,12 @@ class MixedGroupExtension extends Autodesk.Viewing.Extension {
       .append("rect")
       .attr("x", 0)
       .attr("y", 30)
-      .attr("width", 200)
+      .attr("width", 145)
       .attr("height", 15)
       .style("fill", "url(#linear-gradient)");
 
     //create tick marks
-    var xLeg = d3.scale.ordinal().domain([max_particles]).range([190]);
+    var xLeg = d3.scale.ordinal().domain([max_particles]).range([135]);
 
     var axisLeg = d3.axisBottom(xLeg);
 
@@ -540,26 +534,20 @@ class MixedGroupExtension extends Autodesk.Viewing.Extension {
       .append("g")
       .attr("transform", "translate(10, 40)")
       .call(axisLeg);
-  }
-
-  _appearLegendTwo() {
-    // append a defs (for definition) element to your SVG
-    var svgLegend = d3.select("#legend").append("svg");
-
-    // Title
+    
+    // append title
     svgLegend
-    .append("text")
-    .attr("x", 0)
-    .attr("y", 10)
-    .text("Condition")
-    .style("font-size", "15px")
-    .attr("alignment-baseline", "middle");
+      .append("text")
+      .attr("class", "legendTitle")
+      .attr("x", 175)
+      .attr("y", 20)
+      .style("text-anchor", "mid")
+      .text("Condition");
 
     var keys = [
-        "Uninfected",
-        "Almost Infected",
-        "infected",
-        "Carrier"
+        "Susceptible",
+        "Infected",
+        "Initial Infected"
     ]
 
     // Add one dot in the legend for each name.
@@ -567,38 +555,36 @@ class MixedGroupExtension extends Autodesk.Viewing.Extension {
     .data(keys)
     .enter()
     .append("text")
-        .attr("x", 20)
-        .attr("y", function(d,i){ return 30 + i*20}) 
+        .attr("x", 195)
+        .attr("y", function(d,i){ return 40 + i*20}) 
         .text(function(d){ return d})
         .attr("text-anchor", "left")
         .style("alignment-baseline", "middle")
     
     // Circles
     svgLegend
-      .append("circle")
-      .attr("cx", 6)
-      .attr("cy", 28)
-      .attr("r", 6)
-      .style("fill", "#FFFFFF");
+      .append("rect")
+      .attr("x", 174)
+      .attr("y", 30)
+      .attr("width", 15)
+      .attr("height", 15)
+      .style("fill", "#ffebcc");
     svgLegend
-      .append("circle")
-      .attr("cx", 6)
-      .attr("cy", 48)
-      .attr("r", 6)
-      .style("fill", "#CC7A00");
+      .append("rect")
+      .attr("x", 174)
+      .attr("y", 50)
+      .attr("width", 15)
+      .attr("height", 15)
+      .style("fill", "#a35050");
     svgLegend
-      .append("circle")
-      .attr("cx", 6)
-      .attr("cy", 68)
-      .attr("r", 6)
-      .style("fill", "#A61E1E");
-    svgLegend
-      .append("circle")
-      .attr("cx", 6)
-      .attr("cy", 88)
-      .attr("r", 6)
+      .append("rect")
+      .attr("x", 174)
+      .attr("y", 70)
+      .attr("width", 15)
+      .attr("height", 15)
       .style("fill", "#FF0000");
   }
+
 }
 
 Autodesk.Viewing.theExtensionManager.registerExtension("MixedGroupExtension", MixedGroupExtension);
