@@ -20,7 +20,6 @@
 */
 
 let data;
-let playGame = false;
 
 class MyAwesomeExtension extends Autodesk.Viewing.Extension {
   constructor(viewer, options) {
@@ -297,7 +296,7 @@ class MyAwesomeExtension extends Autodesk.Viewing.Extension {
             self.data = result;
             self._getViz();
 
-            if (self.index == numFiles - 1) { clearInterval(interval); }
+            if (self.index == numFiles - 1 || self._playGame == false) { clearInterval(interval); }
 
             self.index++;
             self._updateCountdown();
@@ -317,16 +316,26 @@ class MyAwesomeExtension extends Autodesk.Viewing.Extension {
   }
 
   _updateCountdown() {
-    const minutes = Math.floor(
-      (this.realTime % (1000 * 60 * 60)) / (1000 * 60)
-    );
-    let seconds = Math.floor((this.realTime % (1000 * 60)) / 1000);
-    seconds = seconds < 10 ? "0" + seconds : seconds;
-    this.timer = `${minutes}:${seconds}`;
-    this._panel.highlightableElements[
-      "Countdown0:00Time"
-    ][1].innerText = `${minutes}:${seconds}`;
-    countdown.innerHTML = `${minutes}:${seconds}`;
+    if(this._playGame == false){
+      this.timer = "0:00";
+      
+      this._panel.highlightableElements[
+        "Countdown0:00Time"
+      ][1].innerText = this.timer;
+      
+    }else{
+      const minutes = Math.floor(
+        (this.realTime % (1000 * 60 * 60)) / (1000 * 60)
+      );
+      let seconds = Math.floor((this.realTime % (1000 * 60)) / 1000);
+      seconds = seconds < 10 ? "0" + seconds : seconds;
+      this.timer = `${minutes}:${seconds}`;
+      this._panel.highlightableElements[
+        "Countdown0:00Time"
+      ][1].innerText = `${minutes}:${seconds}`;
+      countdown.innerHTML = `${minutes}:${seconds}`;
+    }
+    
   }
 
   onToolbarCreated() {
@@ -341,7 +350,22 @@ class MyAwesomeExtension extends Autodesk.Viewing.Extension {
     // Reset back to time-step one and remove all visuals
     ////////////////////////////////////////////////////////
     this._button = new Autodesk.Viewing.UI.Button("Reset");
-    this._button.onClick = (ev) => {};
+    this._button.onClick = (ev) => {
+
+      this._playGame = false
+
+      if(this.points != undefined){
+        this.points.visible = false;
+      }
+
+      if(this._panel != null){
+        // Show / hide docking panel
+        this._panel.setVisible(!this._panel.isVisible());
+        // If panel is NOT visible, exit the function
+        if (!this._panel.isVisible()) return;
+      }
+
+    };
     this._button.setToolTip("Reset All");
     this._button.addClass("resetIcon");
     this._group.addControl(this._button);
@@ -359,6 +383,7 @@ class MyAwesomeExtension extends Autodesk.Viewing.Extension {
           "modelSummaryPanel",
           "Overview"
         );
+        this._panel.addProperty("Countdown", this.timer, "Time");
       }
 
       // Show / hide docking panel
@@ -367,11 +392,8 @@ class MyAwesomeExtension extends Autodesk.Viewing.Extension {
       if (!this._panel.isVisible()) return;
 
       if (this._playGame == false) {
-        this._panel.addProperty("Countdown", this.timer, "Time");
 
         this._playGame = true;
-
-        playGame = this._playGame;
 
         // Reset the number of files read back to zero
         this.index = 0;
