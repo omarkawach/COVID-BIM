@@ -2,6 +2,10 @@
 
 The csv files are too large to upload on github, if you need to run this project please email Vinu Subashini Rajus at vinu.rajus@carleton.ca
 
+## TODO
+
+Fix the issue where this branch only works on MacOS
+
 ## Getting Started
 
 Clone the repository and run "npm install" to get dependencies
