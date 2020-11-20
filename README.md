@@ -1,4 +1,4 @@
-# COVID-BIM
+# COVID-BIM-V2
 
 To run the app, clone the repository and run "npm install" to get the dependencies
 
@@ -8,27 +8,13 @@ The csv files are too large to upload on github, If you need to run this project
 
 ## Getting Started
 
-#### Decide what you want to see 
+Run the following commands before running the project
 
-In the index.html, you will need to comment out the script you aren't interested in. 
+```npm install```
 
-- boxGeometry.js
-  - For running C02 simulation model
-  - Requires data/boxGeometry_readData.js for reading CSV
-- mixedGroup.js
-  - For running virus particle spread model 
-  - Requires data/mixedGroup_readData.js for reading CSV
+```npm i -S fast-csv```
 
-
-## CO2 Simulation Model 
-
-```<script src="./data/boxGeometry_readData.js"></script>```
-```<script src="./js/boxGeometry.js"></script>```
-
-## Virus Particle Spreader Model
-
-```<script src="./data/mixedGroup_readData.js"></script>```
-```<script src="./js/mixedGroup.js"></script> ```
+```npm install csv-split-stream```
 
 ## Important Links
 
@@ -36,5 +22,34 @@ In the index.html, you will need to comment out the script you aren't interested
 
 [CO2 model](https://github.com/SimulationEverywhere-Models/Cell-DEVS-CO2_spread_computer_lab)
 
-[Indoor Virus Spread model](https://github.com/SimulationEverywhere-Models/indoor_virus_spread
-)
+[Indoor Virus Spread model](https://github.com/SimulationEverywhere-Models/indoor_virus_spread)
+
+
+### Resources
+
+[Graphics Reference for shaders](http://what-when-how.com/Tutorial/topic-1779u1aung/Three-js-277.html)
+
+Uniform: Passed in from Shader Material into shaders
+- Only in fragment shader
+
+Varying: Passed in from the Buffer Geometry into the shaders 
+- First vertex shader and then fragment shader
+
+[3D Markup with icons and info-Card](https://forge.autodesk.com/blog/3d-markup-icons-and-info-card)
+
+Spritesheet: 
+
+Markup: 
+
+[PointCloud in Forge Viewer](https://forge.autodesk.com/blog/using-pointcloud-forge-viewer)
+
+THREE.BufferGeometry
+
+[Fast-CSV](https://c2fo.io/fast-csv/)
+
+CSV parser and formatter
+
+[csv-split-stream](https://www.npmjs.com/package/csv-split-stream)
+
+Turn local CSV file into many CSV files
+
