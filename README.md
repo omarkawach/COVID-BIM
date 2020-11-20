@@ -1,20 +1,22 @@
 # COVID-BIM-V2
 
-To run the app, clone the repository and run "npm install" to get the dependencies
-
-Use your own Autodesk client credentials to run the app inside launch.json.
-
-The csv files are too large to upload on github, If you need to run this project please email Vinu Subashini Rajus at vinu.rajus@carleton.ca
+The csv files are too large to upload on github, if you need to run this project please email Vinu Subashini Rajus at vinu.rajus@carleton.ca
 
 ## Getting Started
 
-Run the following commands before running the project
+Clone the repository and run "npm install" to get dependencies
+
+Next, run the following commands:
 
 ```npm install```
 
 ```npm i -S fast-csv```
 
 ```npm install csv-split-stream```
+
+Create a folder in ```public``` called ```data``` and create another folder called ```output```. This is where you will store ```state_change.csv```
+
+Use your own Autodesk client credentials to run the app inside launch.json
 
 ## Important Links
 
@@ -23,7 +25,6 @@ Run the following commands before running the project
 [CO2 model](https://github.com/SimulationEverywhere-Models/Cell-DEVS-CO2_spread_computer_lab)
 
 [Indoor Virus Spread model](https://github.com/SimulationEverywhere-Models/indoor_virus_spread)
-
 
 ### Resources
 
