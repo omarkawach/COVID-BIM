@@ -1,6 +1,6 @@
 # COVID-BIM-V2
 
-The csv files are too large to upload on github, if you need to run this project please email Vinu Subashini Rajus at vinu.rajus@carleton.ca
+The CSV files are too large to upload on github, if you need to run this project please email Dr. Vinu Subashini Rajus at vinu.rajus@carleton.ca
 
 ## TODO
 
@@ -8,9 +8,9 @@ Fix the issue where this branch only works on MacOS
 
 ## Getting Started
 
-Clone the repository and run "npm install" to get dependencies
+###### Clone the repository
 
-Next, run the following commands:
+###### Get dependencies
 
 ```npm install```
 
@@ -18,9 +18,18 @@ Next, run the following commands:
 
 ```npm install csv-split-stream```
 
-Create a folder in ```public``` called ```data``` and create another folder called ```output```. This is where you will store ```state_change.csv```
+###### Create Folder(s) for Simulation Data
 
-Use your own Autodesk client credentials to run the app inside launch.json
+Create a folder in ```public``` called ```data``` and store your ```state_change.csv``` there. Next, create a folder in the ```data``` folder called ```output```. This is where the split CSVs will be stored.
+
+###### Make a Forge Account 
+
+[Autodesk Forge](https://forge.autodesk.com/)
+
+###### Use Forge Credentials to Run the Application
+
+See ```launch.json``` in the ```.vscode``` folder. Enter your client ID and secret there. 
+
 
 ## Important Links
 
@@ -32,29 +41,12 @@ Use your own Autodesk client credentials to run the app inside launch.json
 
 ### Resources
 
-[Graphics Reference for shaders](http://what-when-how.com/Tutorial/topic-1779u1aung/Three-js-277.html)
+[Graphics reference for shaders](http://what-when-how.com/Tutorial/topic-1779u1aung/Three-js-277.html) - Explains types of qualifiers (uniform, varying, etc.)
 
-Uniform: Passed in from Shader Material into shaders
-- Only in fragment shader
+[3D Markup with icons and info-Card](https://forge.autodesk.com/blog/3d-markup-icons-and-info-card) - Discusses spritesheets and clickable geometries
 
-Varying: Passed in from the Buffer Geometry into the shaders 
-- First vertex shader and then fragment shader
+[Using PointCloud in Forge Viewer](https://forge.autodesk.com/blog/using-pointcloud-forge-viewer) - Uses three.js (r71)
 
-[3D Markup with icons and info-Card](https://forge.autodesk.com/blog/3d-markup-icons-and-info-card)
+[Fast-CSV](https://c2fo.io/fast-csv/) - CSV Parser and Formatter
 
-Spritesheet: 
-
-Markup: 
-
-[PointCloud in Forge Viewer](https://forge.autodesk.com/blog/using-pointcloud-forge-viewer)
-
-THREE.BufferGeometry
-
-[Fast-CSV](https://c2fo.io/fast-csv/)
-
-CSV parser and formatter
-
-[csv-split-stream](https://www.npmjs.com/package/csv-split-stream)
-
-Turn local CSV file into many CSV files
-
+[csv-split-stream](https://www.npmjs.com/package/csv-split-stream) - Split a CSV read stream into multiple write streams
