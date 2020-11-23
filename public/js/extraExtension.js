@@ -34,13 +34,19 @@ class MyAwesomeExtension extends Autodesk.Viewing.Extension {
     // Timer properties
     this.timer = "0:00";
 
-    // PointCloud position properties (VSIM)
-    this.zaxisOffsetParticle = -4.5;
-    this.zaxisOffsetHuman = -2;
-    this.xaxisOffset = -89.5;
-    this.yaxisOffset = -70;
+    // PointCloud position properties (VSIM Lab)
+    // this.zaxisOffsetParticle = -4.5; 
+    // this.zaxisOffsetHuman = -2;
+    // this.xaxisOffset = -89.5;
+    // this.yaxisOffset = -70;
 
-    // Textures
+    // PointCloud position properties (Restaurant)
+    this.zaxisOffsetParticle = -2;
+    this.zaxisOffsetHuman = -2;
+    this.xaxisOffset = -13;
+    this.yaxisOffset = -29;
+
+    // Spritesheet
     this.texture = THREE.ImageUtils.loadTexture("../img/5_imgList.png");
 
     this.colorScale = d3
@@ -90,6 +96,7 @@ class MyAwesomeExtension extends Autodesk.Viewing.Extension {
     return true;
   }
 
+  // Add PointCloud scene / overlay to Forge Viewer
   _renderCloud() {
     this._generatePointCloudShaders();
 
@@ -102,8 +109,21 @@ class MyAwesomeExtension extends Autodesk.Viewing.Extension {
   }
 
   _generatePointCloudShaders() {
-    // Is there any way to stop the sprites from changing sizes when zooming in?
-    // Maybe pass a size parameter?
+    /*
+      Definitions:
+        - Uniform: Passed in from Shader Material into shaders
+          - Only in fragment shader
+        - Varying: Passed in from the Buffer Geometry into the shaders 
+          - First vertex shader and then fragment shader
+
+      Data types:
+        - Scalar
+          - bool, int, float, uint, double
+        - Vector
+          - vecn is a vector of single precision float-point #s
+            - The n digit can be 2, 3, or 4
+    */
+    
     this.vShader = `
       uniform float size;
       varying vec3 vColor;
@@ -116,24 +136,27 @@ class MyAwesomeExtension extends Autodesk.Viewing.Extension {
           gl_Position = projectionMatrix * mvPosition;
       }`;
 
-    // To cut up the image
-    // (gl_PointCoord.x+uVu.x*1.0) / x
-    // Where x should be the number of icons
+
     this.fShader = `
       uniform sampler2D tex;
+
+      // Holds rgb values
       varying vec3 vColor;
+
+      // uVu.x holds the icon to access
+      // uVu.y holds the opacity of the icon
       varying vec2 uVu;
+
       void main() {
-          // Get flags for WebGL errors
-          //float transparency = 1.0 - 2.0 * distance(gl_PointCoord.xy, vec2(0.5, 0.5));
+
+          // Declare rgba
           gl_FragColor = vec4( vColor.x, vColor.y, vColor.z, uVu.y ); 
+
+          // Divide by the number of icons in the sprite sheet after (gl_PointCoord.x+uVu.x*1.0)
           gl_FragColor = gl_FragColor * texture2D(tex, vec2((gl_PointCoord.x+uVu.x*1.0)/5.0, 1.0-gl_PointCoord.y));
-          
-          // Transparency
-          // Blending?
-          // WebGL has method for distance between points to generate radial
-          //gl_FragColor = vec4( 1,0,0, gl_PointCoord.y ); 
+
           if (gl_FragColor.w < 0.5) discard;
+
       }`;
   }
 
@@ -268,8 +291,8 @@ class MyAwesomeExtension extends Autodesk.Viewing.Extension {
     jQuery.get(
       "/api/forge/csvStreamer/streaming",
       {
-        // Change file path as need
-        filepath: `./public/data/output/state_change.csv`,
+        // Change the file path based on the CSV being read
+        filepath: `./public/data/state_change_rest_vents_off.csv`,
         output: `state_change_split`,
         view_name: "3D",
       },
@@ -310,6 +333,7 @@ class MyAwesomeExtension extends Autodesk.Viewing.Extension {
   _getViz() {
     if (this.index == 0) {
       this._renderCloud();
+      
     } else {
       this._updateRenderCloud();
     }
