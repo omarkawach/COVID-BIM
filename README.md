@@ -6,6 +6,8 @@ The CSV files are too large to upload on github, if you need to run this project
 
 Fix the issue where this branch only works on MacOS
 
+Save ```state_change.csv``` to ```public/data``` automatically after running Python script?
+
 ## Getting Started
 
 ###### Clone the repository
@@ -18,10 +20,6 @@ Fix the issue where this branch only works on MacOS
 
 ```npm install csv-split-stream```
 
-###### Create Folder(s) for Simulation Data
-
-Create a folder in ```public``` called ```data``` and store your ```state_change.csv``` there. Next, create a folder in the ```data``` folder called ```output```. This is where the split CSVs will be stored.
-
 ###### Make a Forge Account 
 
 [Autodesk Forge](https://forge.autodesk.com/)
@@ -29,6 +27,18 @@ Create a folder in ```public``` called ```data``` and store your ```state_change
 ###### Use Forge Credentials to Run the Application
 
 See ```launch.json``` in the ```.vscode``` folder. Enter your client ID and secret there. 
+
+###### Convert Simulation Results to CSV
+
+Place your ```state.txt``` file into the ```scripts``` folder, then cd into the ```scripts``` folder and run the following command in terminal: 
+
+```cat state.txt | python state_txt_to_csv-VCP.py```
+
+This will output ```state_change.csv```
+
+###### Create Folder(s) for Simulation Data
+
+Create a folder in ```public``` called ```data``` and store your ```state_change.csv``` there. Next, create a folder in the ```data``` folder called ```output```. This is where the split CSVs will be stored.
 
 
 ## Important Links
