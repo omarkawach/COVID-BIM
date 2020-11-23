@@ -6,33 +6,47 @@ const express = require("express");
 let router = express.Router();
 let self = this;
 
+/*
+  File stream and fast-csv will read your CSV line 
+  by line to find the number of cells in each time 
+  step. Once the number of cells is discovered, 
+  the program moves on to split the CSV. Each CSV
+  will be a time step. 
+*/
 router.get("/streaming", async (req, res, next) => {
+
   self.res = res
-  var counter = 0;
-  var file = req.query.filepath;
+
+  var cellCount = 0;
   var f = fs.createReadStream(req.query.filepath);
+
   f.pipe(csv.parse())
     .on("error", (error) => console.error(error))
-    .on(
-      "data",
-      (row) => {
-        if (row[0] == '10' || row[0] == 10) { counter++; }
+    .on("data", (line) => {
+        // line[0] is the time step 
 
-        if (row[0] == '20' || row[0] == 20) {
+        // Use any time step except time step 0 to find the 
+        // number of cells 
+        if (line[0] == '10' || line[0] == 10) { cellCount++; }
+
+        // Once we exit the previous time step, stop parsing
+        if (line[0] == '20' || line[0] == 20) {
           f.pause();
           f.emit("end");
         }
       }
     )
-    .on(
-      "end",
-      (rowCount) => {
-        _counterFn(counter, req.query.output, file)
+    .on("end", (rowCount) => {
+        splitCSV(cellCount, req.query.output, req.query.filepath)
       }
     );
 });
 
-
+/*
+  File stream and fast-csv will read each line in 
+  the split CSV. The data collected will be sent back 
+  to the custom Forge Extension.
+*/
 router.get("/reading", async (req, res, next) => {
   var f = fs.createReadStream(req.query.filepath);
   let data = [];
@@ -61,22 +75,24 @@ function sendResponse(chunks){
   self.res.send(chunks)
 }
 
-async function _counterFn(counter,resultname,file) {
+async function splitCSV(counter, output, file) {
   const filepath = './public/data/output';
   return csvSplitStream.split(
     fs.createReadStream(file),
     {
       lineLimit: counter
     },
-    //(index) => fs.createWriteStream(`${filepath}/output-${index}.csv`)
-    (index) => fs.createWriteStream(`${filepath}/${resultname}-${index}.csv`),
+    // Where the split CSVs will go
+    (index) => fs.createWriteStream(`${filepath}/${output}-${index}.csv`),
   )
     .then(csvSplitResponse => {
-      console.log('csvSplitStream succeeded.'); //, csvSplitResponse);
+      console.log('csvSplitStream succeeded.', csvSplitResponse);
+      // Send the new CSV file to the custom Forge Extension
       sendResponse(csvSplitResponse)
     }).catch(csvSplitError => {
-      //console.log('csvSplitStream failed!', csvSplitError);
+      console.log('csvSplitStream failed!', csvSplitError);
     });
 }
 
 module.exports = router;
+
