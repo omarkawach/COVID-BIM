@@ -44,6 +44,7 @@ Create a folder in ```public``` called ```data``` and store your ```state_change
 ## Plans for the Future
 
 - Look into flags for WebGL errors
+- Solve how to find max number of viral particles without slowing things down
 - Save ```state_change.csv``` to ```public/data``` automatically after running Python script?
 - Stop sprites / icons from changing size when zooming in or out
   - Could potentially be done through the size parameter in the shader
