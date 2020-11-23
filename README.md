@@ -2,27 +2,6 @@
 
 The CSV files are too large to upload on github, if you need to run this project please email Dr. Vinu Subashini Rajus at vinu.rajus@carleton.ca
 
-## TODO
-
-Look into flags for WebGL errors
-
-Fix the issue where this branch only works on MacOS
-
-Save ```state_change.csv``` to ```public/data``` automatically after running Python script?
-
-## Things to change
-
-Is there any way to stop the sprites from changing sizes when zooming in?
-- Maybe pass a size parameter in the shader?
-
-The filepath for the csv being read
-
-and how the cells are counted based on time steps
-
-and how long to spend reading each time step...might need to skip a few files so it looks less jittery
-
-stop looking for CSVs when you kill the app
-
 ## Getting Started
 
 ###### Clone the repository
@@ -55,6 +34,19 @@ This will output ```state_change.csv```
 
 Create a folder in ```public``` called ```data``` and store your ```state_change.csv``` there. Next, create a folder in the ```data``` folder called ```output```. This is where the split CSVs will be stored.
 
+## Things to Watch out for
+
+- The filepath of the CSV being read
+- How the cells are counted based on time steps
+- How long to spend reading each time step
+  - Might need to skip a few files at a time 
+
+## Plans for the Future
+
+- Look into flags for WebGL errors
+- Save ```state_change.csv``` to ```public/data``` automatically after running Python script?
+- Stop sprites / icons from changing size when zooming in or out
+  - Could potentially be done through the size parameter in the shader
 
 ## Important Links
 
@@ -64,9 +56,13 @@ Create a folder in ```public``` called ```data``` and store your ```state_change
 
 [Indoor Virus Spread model](https://github.com/SimulationEverywhere-Models/indoor_virus_spread)
 
+[BIM-to-DEVS](https://github.com/SimulationEverywhere/BIM-to-DEVS/tree/master)
+
 ### Resources
 
 [Graphics reference for shaders](http://what-when-how.com/Tutorial/topic-1779u1aung/Three-js-277.html) - Explains types of qualifiers (uniform, varying, etc.)
+
+[gl_FragCoord](https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/gl_FragCoord.xhtml) - Might help with camera view of sprites / icons
 
 [Data Types (OpenGL)](https://www.khronos.org/opengl/wiki/Data_Type_(GLSL)https://www.khronos.org/opengl/wiki/Data_Type_(GLSL)) - Scalars and vectors
 
@@ -78,3 +74,54 @@ Create a folder in ```public``` called ```data``` and store your ```state_change
 
 [csv-split-stream](https://www.npmjs.com/package/csv-split-stream) - Split a CSV read stream into multiple write streams
 
+[File stream](https://nodejs.org/api/stream.html#stream_readable_pause) - Node.js stream readable
+
+### Other Resources 
+
+[Michael Beale](https://forge.autodesk.com/author/michael-beale)
+
+[Basic Skeleton Extension](https://learnforge.autodesk.io/#/viewer/extensions/skeleton)
+
+[Handle Selection Extension](https://learnforge.autodesk.io/#/viewer/extensions/selection)
+
+[Basic PointClouds in Forge Viewer](https://forge.autodesk.com/blog/basic-point-clouds-forge-viewer)
+
+[Consume AEC Data](https://forge.autodesk.com/blog/consume-aec-data-which-are-model-derivative-api)
+
+[2D Minimap](https://forge.autodesk.com/blog/add-revit-levels-and-2d-minimap-your-3d) 
+
+[Set Theming Color](https://forge.autodesk.com/blog/happy-easter-setthemingcolor-model-material)
+
+[Forge Fader](https://github.com/jeremytammik/forgefader)
+
+[Forge Heat Map Extension](https://github.com/petrbroz/learn.forge.viewmodels/blob/extend-viewer/public/js/HeatmapExtension.js)
+
+[Custom Shader Materials in Forge Viewer](https://forge.autodesk.com/blog/custom-shader-materials-forge-viewer)
+
+[Forge PointCloud Animation](https://github.com/wallabyway/forge-pointcloud-animation)
+
+[Custom Model Browser](https://forge.autodesk.com/blog/customizing-model-browser-custom-label-behavior-styling-and-data-sources)
+
+[Dynamic Textures on Flat Surface](https://adndevblog.typepad.com/cloud_and_mobile/2016/07/projecting-dynamic-textures-onto-flat-surfaces-with-threejs.html)
+
+[SVF2 Public Beta](https://forge.autodesk.com/blog/svf2-public-beta-new-optimized-viewer-format)
+
+[SFV Extractor](https://forge.autodesk.com/blog/forge-svf-extractor-nodejs)
+
+[Forge Fader](https://forge-rcdb.autodesk.io/configurator?id=59041f250007f5c0eef482f2)
+
+[HTTP Live Streaming](https://developer.apple.com/streaming/)
+
+[M3U8 File for HTTP Live Stream](https://www.lifewire.com/m3u8-file-2621956#:~:text=A%20file%20with%20the%20M3U8,for%20an%20internet%20radio%20station.)
+
+[OpenVDB for Particle-based Fluid Simulation](https://www.openvdb.org/)
+
+[Forge Viewer Extract Spreadsheet](https://github.com/Autodesk-Forge/viewer-javascript-extract.spreadsheet)
+
+[Forge APIs](https://forge.autodesk.com/en/docs/)
+
+[THREE.js OBJLoader](https://threejs.org/docs/#examples/en/loaders/OBJLoader)
+
+[Free OBJ Models for Viewer](https://www.turbosquid.com/3d-model/free/character?keyword=sitting)
+
+[Woman Sitting OBJ](https://www.turbosquid.com/3d-models/free-max-mode-human-rig-female-gigapixel/847088)
