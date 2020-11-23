@@ -4,9 +4,24 @@ The CSV files are too large to upload on github, if you need to run this project
 
 ## TODO
 
+Look into flags for WebGL errors
+
 Fix the issue where this branch only works on MacOS
 
 Save ```state_change.csv``` to ```public/data``` automatically after running Python script?
+
+## Things to change
+
+Is there any way to stop the sprites from changing sizes when zooming in?
+- Maybe pass a size parameter in the shader?
+
+The filepath for the csv being read
+
+and how the cells are counted based on time steps
+
+and how long to spend reading each time step...might need to skip a few files so it looks less jittery
+
+stop looking for CSVs when you kill the app
 
 ## Getting Started
 
@@ -53,6 +68,8 @@ Create a folder in ```public``` called ```data``` and store your ```state_change
 
 [Graphics reference for shaders](http://what-when-how.com/Tutorial/topic-1779u1aung/Three-js-277.html) - Explains types of qualifiers (uniform, varying, etc.)
 
+[Data Types (OpenGL)](https://www.khronos.org/opengl/wiki/Data_Type_(GLSL)https://www.khronos.org/opengl/wiki/Data_Type_(GLSL)) - Scalars and vectors
+
 [3D Markup with icons and info-Card](https://forge.autodesk.com/blog/3d-markup-icons-and-info-card) - Discusses spritesheets and clickable geometries
 
 [Using PointCloud in Forge Viewer](https://forge.autodesk.com/blog/using-pointcloud-forge-viewer) - Uses three.js (r71)
@@ -60,3 +77,4 @@ Create a folder in ```public``` called ```data``` and store your ```state_change
 [Fast-CSV](https://c2fo.io/fast-csv/) - CSV Parser and Formatter
 
 [csv-split-stream](https://www.npmjs.com/package/csv-split-stream) - Split a CSV read stream into multiple write streams
+
