@@ -14,7 +14,10 @@ let self = this;
   will be a time step. 
 */
 router.get("/streaming", async (req, res, next) => {
-
+  //https://github.com/expressjs/express/issues/2174
+  // Don't use this outside of localhost
+  req.setTimeout(0) // no timeout
+  
   self.res = res
 
   var cellCount = 0;
@@ -95,4 +98,3 @@ async function splitCSV(counter, output, file) {
 }
 
 module.exports = router;
-
