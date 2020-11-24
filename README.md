@@ -14,7 +14,7 @@ The CSV files are too large to upload on github, if you need to run this project
 
 ```npm install csv-split-stream```
 
-###### Make a Forge Account 
+###### Make a Forge Account
 
 [Autodesk Forge](https://forge.autodesk.com/)
 
@@ -40,6 +40,7 @@ Create a folder in ```public``` called ```data``` and store your ```state_change
 - How the cells are counted based on time steps
 - How long to spend reading each time step
   - Might need to skip a few files at a time 
+- ```csvStreamer.js``` has ```req.setTimeout(0)``` for users with slow computers. Remove the timeout callback when running the application outside of localhost. 
 
 ## Plans for the Future
 
