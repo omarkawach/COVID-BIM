@@ -23,6 +23,9 @@ router.get("/streaming", async (req, res, next) => {
   var cellCount = 0;
   var f = fs.createReadStream(req.query.filepath);
 
+  // This variable will contain the max current_state
+  let m = 0;
+
   f.pipe(csv.parse())
     .on("error", (error) => console.error(error))
     .on("data", (line) => {
@@ -30,10 +33,19 @@ router.get("/streaming", async (req, res, next) => {
 
         // Use any time step except time step 0 to find the 
         // number of cells 
-        if (line[0] == '10' || line[0] == 10) { cellCount++; }
+        if (line[0] == '1' || line[0] == 1) { cellCount++; }
+        
+        // Uncomment when trying to find max current_state
+        // Find max current_state
+        // if(line[6] > m){
+        //   m = line[6]
+        // }
 
-        // Once we exit the previous time step, stop parsing
-        if (line[0] == '20' || line[0] == 20) {
+        // Comment this line of code when trying to solve for max
+        // current_state 
+
+        //Once we exit the previous time step, stop parsing
+        if (line[0] == '2' || line[0] == 2) {
           f.pause();
           f.emit("end");
         }
@@ -41,6 +53,8 @@ router.get("/streaming", async (req, res, next) => {
     )
     .on("end", (rowCount) => {
         splitCSV(cellCount, req.query.output, req.query.filepath)
+        // Print max current_state
+        //console.log(m)
       }
     );
 });
@@ -78,6 +92,7 @@ function sendResponse(chunks){
   self.res.send(chunks)
 }
 
+
 async function splitCSV(counter, output, file) {
   const filepath = './public/data/output';
   return csvSplitStream.split(
@@ -98,3 +113,4 @@ async function splitCSV(counter, output, file) {
 }
 
 module.exports = router;
+
