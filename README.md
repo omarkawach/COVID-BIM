@@ -36,10 +36,22 @@ Create a folder in ```public``` called ```data``` and store your ```state_change
 
 ## Things to Watch out for
 
-- The filepath of the CSV being read
-- How the cells are counted based on time steps
-- How long to spend reading each time step
-  - Might need to skip a few files at a time 
+- The filepath of the CSV being read (see ```extraExtension.js```)
+  
+  ![](./changeFile.png "img")
+
+- Solving the number of cells in a time step depends on the time steps in the data
+  
+  ![](./timestep.png "img")
+
+- Visualization playback
+  - The ```time``` variable: How often to read a new CSV file
+  - The ```speed``` variable: Reduces the number of files to read
+    - Ex. If the speed is 10 then only every 10th CSV file will be read
+- Find the max state in a cell through ```csvStreamer.js``` and update this.maxState in ```extraExtension.js```
+
+  ![](./state.png "img")
+  
 - ```csvStreamer.js``` has ```req.setTimeout(0)``` for users with slow computers. Remove the timeout callback when running the application outside of localhost. 
 
 ## Plans for the Future
