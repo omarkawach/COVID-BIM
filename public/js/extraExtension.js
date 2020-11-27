@@ -50,7 +50,7 @@ class MyAwesomeExtension extends Autodesk.Viewing.Extension {
 
     // Restaurant
     this.zaxisOffsetParticle = -2;
-    this.zaxisOffsetHuman = -1;
+    this.zaxisOffsetHuman = 0;
     this.xaxisOffset = -13;
     this.yaxisOffset = -29;
 
@@ -59,7 +59,7 @@ class MyAwesomeExtension extends Autodesk.Viewing.Extension {
 
     // Max number of particles in a space in our data
     // This number will need to be manually updated based on the max in the CSV
-    this.maxState = 9;
+    this.maxState = 999;
 
     // For PointCloud colouring and D3 legend
     this.createColorScale()
@@ -85,6 +85,11 @@ class MyAwesomeExtension extends Autodesk.Viewing.Extension {
    * and setting the D3 color legend (see the code in onToolbarCreated())
    */
   createColorScale(){
+    this.infected = "#000000" 
+    this.newInfected = "#FFFFFF"
+    this.susceptible = "#75d6d2"
+    this.exposed = "#007c78"
+
     this.colorScale = d3
       .scaleLinear()
       .domain([
@@ -129,7 +134,7 @@ class MyAwesomeExtension extends Autodesk.Viewing.Extension {
       "/api/forge/csvStreamer/streaming",
       {
         // Change the file path based on the CSV being read
-        filepath: `./public/data/state_change_vent_on_same_wall.csv`,
+        filepath: `./public/data/ventOn_sameWall_1hr.csv`,
         // What the split files will be called
         output: `state_change_split`
       },
@@ -156,9 +161,9 @@ class MyAwesomeExtension extends Autodesk.Viewing.Extension {
     // 1000ms is 1 second in real time, 100ms is 0.1 second in real time
     // Only use 100 or more or else you get errors
     var time = 100; 
-    // Try multiplying by tens (1, 10, 100, etc.)
+    // Try multiples (1, 10, 100, etc.)
     // Ex. When speed = 10 then every 10th file is read
-    var speed = 10
+    var speed = 1
 
     self.realTime = (1000 * numFiles - 1000) / (speed);
     
@@ -243,6 +248,7 @@ class MyAwesomeExtension extends Autodesk.Viewing.Extension {
   /**
    * @description Generate shader material for PointClouds
    * @param {number} pointSize - Size of the sprite 
+   * @param {boolean} transparent - Whether or not we want the sprite transparent
    */
   _generateShaderMaterial(pointSize, transparent) {
     
@@ -396,20 +402,20 @@ class MyAwesomeExtension extends Autodesk.Viewing.Extension {
 
       // If an air particle and has viral load
       if (
-        (m.curr_type == -100 || m.curr_type == -200 || m.curr_type == -800) &&
-        m.current_state != 0
+        (m.type == -100 || m.type == -200 || m.type == -800) &&
+        m.state != 0
       ) {
         particleIconAndOpacity[2 * k + 1] = 0.7;
       } else {
         particleIconAndOpacity[2 * k + 1] = 0;
       }
-      let color = new THREE.Color(this.colorScale(m.current_state));
+      let color = new THREE.Color(this.colorScale(m.state));
       color.toArray(particleColors, k * 3);
     }
   }
 
   /**
-   * @description If a cell has a human (curr_type -200, -800, -900) then it is 
+   * @description If a cell has a human (type -200, -800, -900) then it is 
    * coloured based on its type. -200 is coloured red since that is the original infected.
    * -800 is coloured because they are susceptible, and the susceptible color changes
    * based on whether or not viral particles are being inhaled. -900 is similar to -200 
@@ -428,19 +434,19 @@ class MyAwesomeExtension extends Autodesk.Viewing.Extension {
 
       let color;
 
-      if (m.curr_type == -200 || m.curr_type == -800 || m.curr_type == -900) {
+      if (m.type == -200 || m.type == -800 || m.type == -900) {
         // Make visible
         humanIconAndOpacity[2 * k + 1] = 1;
 
-        if (m.curr_type == -200) {
-          color = new THREE.Color(0xff0000);
-        } else if (m.curr_type == -800) {
+        if (m.type == -200) {
+          color = new THREE.Color(this.infected);
+        } else if (m.type == -800) {
           color =
-            m.curr_inhaled > 0
-              ? new THREE.Color(0xffebcc)
-              : new THREE.Color(0xffffff);
-        } else if (m.curr_type == -900) {
-          color = new THREE.Color(0xa35050);
+            m.inhaled > 0 || m.state > 0
+              ? new THREE.Color(this.exposed)
+              : new THREE.Color(this.susceptible);
+        } else if (m.type == -900) {
+          color = new THREE.Color(this.newInfected);
         }
       } else {
         humanIconAndOpacity[2 * k + 1] = 0;
@@ -673,21 +679,21 @@ class MyAwesomeExtension extends Autodesk.Viewing.Extension {
           .attr("y", 30)
           .attr("width", 15)
           .attr("height", 15)
-          .style("fill", "#ffffff");
+          .style("fill", this.susceptible);
       svgLegend
           .append("rect")
           .attr("x", 174)
           .attr("y", 50)
           .attr("width", 15)
           .attr("height", 15)
-          .style("fill", "#ffebcc");
+          .style("fill", this.exposed);
       svgLegend
           .append("rect")
           .attr("x", 174)
           .attr("y", 70)
           .attr("width", 15)
           .attr("height", 15)
-          .style("fill", "#ff0000");
+          .style("fill", this.infected);
         
       svgLegend
           .append("rect")
@@ -695,7 +701,7 @@ class MyAwesomeExtension extends Autodesk.Viewing.Extension {
           .attr("y", 90)
           .attr("width", 15)
           .attr("height", 15)
-          .style("fill", "#a35050");
+          .style("fill", this.newInfected);
         
         
         this._keepLegendInForgeViewer()
@@ -722,4 +728,3 @@ class ModelSummaryPanel extends Autodesk.Viewing.UI.PropertyPanel {
   }
 }
 Autodesk.Viewing.theExtensionManager.registerExtension("MyAwesomeExtension", MyAwesomeExtension);
-
