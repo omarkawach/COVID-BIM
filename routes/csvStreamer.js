@@ -20,10 +20,12 @@ router.get("/streaming", async (req, res, next) => {
   
   self.res = res
 
+  // This will tell us the line limit for 
+  // splitting the CSV
   var cellCount = 0;
   var f = fs.createReadStream(req.query.filepath);
 
-  // This variable will contain the max current_state
+  // This variable will contain the max state
   let m = 0;
 
   f.pipe(csv.parse())
@@ -33,19 +35,17 @@ router.get("/streaming", async (req, res, next) => {
 
         // Use any time step except time step 0 to find the 
         // number of cells 
-        if (line[0] == '1' || line[0] == 1) { cellCount++; }
+        if (line[0] == '10' || line[0] == 10) { cellCount++; }
         
-        // Uncomment when trying to find max current_state
-        // Find max current_state
-        // if(line[6] > m){
-        //   m = line[6]
+        // Uncomment when trying to find max state
+        // if(line[4] > m){
+        //   m = line[4]
         // }
 
-        // Comment this line of code when trying to solve for max
-        // current_state 
+        // Comment this line of code when trying to solve for max state 
 
         //Once we exit the previous time step, stop parsing
-        if (line[0] == '2' || line[0] == 2) {
+        if (line[0] == '20' || line[0] == 20) {
           f.pause();
           f.emit("end");
         }
@@ -54,7 +54,8 @@ router.get("/streaming", async (req, res, next) => {
     .on("end", (rowCount) => {
         splitCSV(cellCount, req.query.output, req.query.filepath)
         // Print max current_state
-        //console.log(m)
+        // console.log(m)
+        // debugger;
       }
     );
 });
@@ -74,12 +75,9 @@ router.get("/reading", async (req, res, next) => {
         time: parseInt(row[0]),
         x: parseInt(row[1]),
         y: parseInt(row[2]),
-        prev_inhaled: parseInt(row[3]),
-        curr_inhaled: parseInt(row[4]),
-        previous_state: parseInt(row[5]),
-        current_state: parseInt(row[6]),
-        prev_type: parseInt(row[8]),
-        curr_type: parseInt(row[8]),
+        inhaled: parseInt(row[3]),
+        state: parseInt(row[4]),
+        type: parseInt(row[5]),
       });
     })
     .on("end", () => {
@@ -113,3 +111,4 @@ async function splitCSV(counter, output, file) {
 }
 
 module.exports = router;
+
