@@ -86,8 +86,6 @@ Create a folder in ```public``` called ```data``` and store your ```state_change
 
 [Handle Selection Extension](https://learnforge.autodesk.io/#/viewer/extensions/selection)
 
-[Raycasting](https://threejs.org/docs/#api/en/core/Raycaster)
-
 [Basic PointClouds in Forge Viewer](https://forge.autodesk.com/blog/basic-point-clouds-forge-viewer)
 
 [Consume AEC Data](https://forge.autodesk.com/blog/consume-aec-data-which-are-model-derivative-api)
