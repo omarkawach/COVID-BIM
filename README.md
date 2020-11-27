@@ -32,7 +32,7 @@ This will output ```state_change.csv```
 
 ###### Create Folder(s) for Simulation Data
 
-Create a folder in ```public``` called ```data``` and store your ```state_change.csv``` there. Next, create a folder in the ```data``` folder called ```output```. This is where the split CSVs will be stored.
+In the ```public``` folder, unzip the ```data.zip``` file. This is what will create our ```data``` folder along with some sample CSV files to try. Next, create a folder in the ```data``` folder called ```output```. This is where the split CSVs will be stored.
 
 ## Things to Watch out for
 
