@@ -50,7 +50,7 @@ class MyAwesomeExtension extends Autodesk.Viewing.Extension {
 
     // Restaurant
     this.zaxisOffsetParticle = -2;
-    this.zaxisOffsetHuman = 0;
+    this.zaxisOffsetHuman = -1;
     this.xaxisOffset = -13;
     this.yaxisOffset = -29;
 
@@ -129,7 +129,7 @@ class MyAwesomeExtension extends Autodesk.Viewing.Extension {
       "/api/forge/csvStreamer/streaming",
       {
         // Change the file path based on the CSV being read
-        filepath: `./public/data/state_change_rest_vents_off.csv`,
+        filepath: `./public/data/state_change_vent_on_same_wall.csv`,
         // What the split files will be called
         output: `state_change_split`
       },
@@ -227,14 +227,14 @@ class MyAwesomeExtension extends Autodesk.Viewing.Extension {
 
     this.pointsParticle = new THREE.PointCloud(
       this._generateGeometry(this.zaxisOffsetParticle, 0), 
-      this._generateShaderMaterial(35)
+      this._generateShaderMaterial(40, true)
       );
     this.viewer.impl.createOverlayScene("particles");
     this.viewer.impl.addOverlay("particles", this.pointsParticle);
 
     this.pointsHuman = new THREE.PointCloud(
       this._generateGeometry(this.zaxisOffsetHuman, 2), 
-      this._generateShaderMaterial(70)
+      this._generateShaderMaterial(70, true)
       );
     this.viewer.impl.createOverlayScene("humans");
     this.viewer.impl.addOverlay("humans", this.pointsHuman);
@@ -244,7 +244,7 @@ class MyAwesomeExtension extends Autodesk.Viewing.Extension {
    * @description Generate shader material for PointClouds
    * @param {number} pointSize - Size of the sprite 
    */
-  _generateShaderMaterial(pointSize) {
+  _generateShaderMaterial(pointSize, transparent) {
     
     /*
       Definitions:
@@ -269,7 +269,10 @@ class MyAwesomeExtension extends Autodesk.Viewing.Extension {
         vColor = color;
         uVu = uv;
         vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );
+
+        // Make changes to this
         gl_PointSize = size * ( size / (length(mvPosition.xyz) + 1.0) );
+
         gl_Position = projectionMatrix * mvPosition;
    }`;
 
@@ -301,7 +304,7 @@ class MyAwesomeExtension extends Autodesk.Viewing.Extension {
       fragmentShader: fShader,
       vertexShader: vShader,
       // For a better result, compute transparency in fShader
-      transparent: true,
+      transparent: transparent,
       depthWrite: false,
       depthTest: true,
       // Pass uniforms into shader code
@@ -467,6 +470,17 @@ class MyAwesomeExtension extends Autodesk.Viewing.Extension {
     this._panel.highlightableElements[
       "Countdown0:00Time"
     ][1].innerText = this.time;
+  }
+
+  /**
+   * @description Keep the legend in the Forge Viewer when going
+   * full screen. You can reuse this code to keep other HTML elements
+   * in the Forge Viewer when going full screen.
+   */
+  _keepLegendInForgeViewer(){
+    let legend = document.getElementById("legend");
+    let v2 = document.querySelector(".adsk-viewing-viewer");
+    v2.appendChild(legend);
   }
 
   onToolbarCreated() {
@@ -682,12 +696,9 @@ class MyAwesomeExtension extends Autodesk.Viewing.Extension {
           .attr("width", 15)
           .attr("height", 15)
           .style("fill", "#a35050");
-
-        let legend = document.getElementById("legend");
-        let v2 = document.querySelector(".adsk-viewing-viewer");
-        v2.appendChild(legend);
-
-          
+        
+        
+        this._keepLegendInForgeViewer()
 
       } else {
         // Delete legend
@@ -702,6 +713,8 @@ class MyAwesomeExtension extends Autodesk.Viewing.Extension {
     this._group.addControl(this._button);
   }
 }
+
+
 class ModelSummaryPanel extends Autodesk.Viewing.UI.PropertyPanel {
   constructor(viewer, container, id, title, options) {
     super(container, id, title, options);
@@ -709,3 +722,4 @@ class ModelSummaryPanel extends Autodesk.Viewing.UI.PropertyPanel {
   }
 }
 Autodesk.Viewing.theExtensionManager.registerExtension("MyAwesomeExtension", MyAwesomeExtension);
+
