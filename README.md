@@ -57,6 +57,7 @@ In the ```public``` folder, unzip the ```data.zip``` file. This is what will cre
 ## Plans for the Future
 
 - Look into flags for WebGL errors
+- Add a pause button
 - Solve how to find max number of viral particles without slowing things down
 - Save ```state_change.csv``` to ```public/data``` automatically after running Python script?
 - Stop sprites / icons from changing size when zooming in or out
