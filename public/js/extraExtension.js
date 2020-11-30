@@ -55,11 +55,12 @@ class MyAwesomeExtension extends Autodesk.Viewing.Extension {
     this.yaxisOffset = -29;
 
     // Spritesheet
-    this.texture = THREE.ImageUtils.loadTexture("../img/5_imgList.png");
+    this.texture = THREE.ImageUtils.loadTexture("../img/4ImgList_new.png");
 
     // Max number of particles in a space in our data
     // This number will need to be manually updated based on the max in the CSV
-    this.maxState = 999;
+
+    this.maxState = 99;
 
     // For PointCloud colouring and D3 legend
     this.createColorScale()
@@ -84,11 +85,12 @@ class MyAwesomeExtension extends Autodesk.Viewing.Extension {
    * colouring the viral particles (PointClouds) 
    * and setting the D3 color legend (see the code in onToolbarCreated())
    */
+
   createColorScale(){
-    this.infected = "#000000" 
-    this.newInfected = "#FFFFFF"
-    this.susceptible = "#75d6d2"
-    this.exposed = "#007c78"
+    this.infected = "#000000" // Black
+    this.newInfected = "#FFFFFF" // White
+    this.susceptible = "#57A0D3" // Caroline 
+    this.exposed = "#0073BC" // 
 
     this.colorScale = d3
       .scaleLinear()
@@ -134,7 +136,7 @@ class MyAwesomeExtension extends Autodesk.Viewing.Extension {
       "/api/forge/csvStreamer/streaming",
       {
         // Change the file path based on the CSV being read
-        filepath: `./public/data/ventOn_sameWall_1hr.csv`,
+        filepath: `./public/data/ventOff_diffWall_1hr.csv`,
         // What the split files will be called
         output: `state_change_split`
       },
@@ -159,8 +161,8 @@ class MyAwesomeExtension extends Autodesk.Viewing.Extension {
     var numFiles = csvSplitResponse.totalChunks; // 1 chunk is one file
     // How fast to read a file in milliseconds 
     // 1000ms is 1 second in real time, 100ms is 0.1 second in real time
-    // Only use 100 or more or else you get errors
-    var time = 100; 
+    // Only use 50 or more or else you get errors
+    var time = 1000; 
     // Try multiples (1, 10, 100, etc.)
     // Ex. When speed = 10 then every 10th file is read
     var speed = 1
@@ -239,7 +241,7 @@ class MyAwesomeExtension extends Autodesk.Viewing.Extension {
 
     this.pointsHuman = new THREE.PointCloud(
       this._generateGeometry(this.zaxisOffsetHuman, 2), 
-      this._generateShaderMaterial(70, true)
+      this._generateShaderMaterial(70, false)
       );
     this.viewer.impl.createOverlayScene("humans");
     this.viewer.impl.addOverlay("humans", this.pointsHuman);
@@ -298,7 +300,7 @@ class MyAwesomeExtension extends Autodesk.Viewing.Extension {
         gl_FragColor = vec4( vColor.x, vColor.y, vColor.z, uVu.y ); 
 
         // Divide by the number of icons in the sprite sheet after (gl_PointCoord.x+uVu.x*1.0)
-        gl_FragColor = gl_FragColor * texture2D(tex, vec2((gl_PointCoord.x+uVu.x*1.0)/5.0, 1.0-gl_PointCoord.y));
+        gl_FragColor = gl_FragColor * texture2D(tex, vec2((gl_PointCoord.x+uVu.x*1.0)/4.0, 1.0-gl_PointCoord.y));
 
         if (gl_FragColor.w < 0.5) discard;
 
@@ -402,7 +404,7 @@ class MyAwesomeExtension extends Autodesk.Viewing.Extension {
 
       // If an air particle and has viral load
       if (
-        (m.type == -100 || m.type == -200 || m.type == -800) &&
+        (m.type == -100 && m.type != -200 && m.type != -800 && m.type != -900) &&
         m.state != 0
       ) {
         particleIconAndOpacity[2 * k + 1] = 0.7;
@@ -442,7 +444,7 @@ class MyAwesomeExtension extends Autodesk.Viewing.Extension {
           color = new THREE.Color(this.infected);
         } else if (m.type == -800) {
           color =
-            m.inhaled > 0 || m.state > 0
+            (m.inhaled > 0 || m.state > 0)
               ? new THREE.Color(this.exposed)
               : new THREE.Color(this.susceptible);
         } else if (m.type == -900) {
@@ -527,6 +529,16 @@ class MyAwesomeExtension extends Autodesk.Viewing.Extension {
     ///////////////////
     this._button = new Autodesk.Viewing.UI.Button("Run Simulation");
     this._button.onClick = (ev) => {
+
+      let a = viewer.navigation;
+      let v = new THREE.Vector3(
+        // For video
+         -32.376366850650484, -30.109324514707787, 33.651880178061205
+        // For screenshots
+        // -18.34997500502296, -39.526261333533846, 28.55371739902584
+      );
+      a.setPosition(v);
+
       // Check if the panel is created or not
       if (this._panel == null) {
         this._panel = new ModelSummaryPanel(
@@ -553,7 +565,7 @@ class MyAwesomeExtension extends Autodesk.Viewing.Extension {
       this._panel.container.style.top = "10px";
     };
     this._button.setToolTip("Run Simulation");
-    this._button.addClass("pointCloudIcon");
+    this._button.addClass("playIcon");
     this._group.addControl(this._button);
 
     ////////////////////////////////////////
@@ -562,7 +574,7 @@ class MyAwesomeExtension extends Autodesk.Viewing.Extension {
     this._button = new Autodesk.Viewing.UI.Button("PointCloud ON / OFF");
     this._button.onClick = (ev) => {};
     this._button.setToolTip("PointCloud ON / OFF");
-    this._button.addClass("playIcon");
+    this._button.addClass("pointCloudIcon");
     this._group.addControl(this._button);
 
     ////////////
@@ -654,7 +666,7 @@ class MyAwesomeExtension extends Autodesk.Viewing.Extension {
           .style("text-anchor", "mid")
           .text("Condition");
 
-        var keys = ["Susceptible", "Exposed", "Infected", "Newly Infected"];
+        var keys = ["Susceptible", "Exposed", "Infected", "Potentially Infected"];
 
         // Add one dot in the legend for each name.
         svgLegend
