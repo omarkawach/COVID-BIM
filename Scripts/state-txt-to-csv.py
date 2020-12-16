@@ -1,10 +1,10 @@
 #!/usr/bin/python3
 import sys
 import re
-#State for model co2_lab_(134,88,18) is <-1,500,-100>
+
 def main(in_file, out_file):
     states = {}
-    print('time,x,y,previous_state,current_state,type', file=out_file)
+    print('time,x,y,inhaled,state,type', file=out_file)
     time = 0
     for line in in_file:
         if re.match(r'^\d+$', line.strip()):
